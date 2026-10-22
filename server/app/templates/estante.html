@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block titulo %}Biblioteca de Ebooks{% endblock %}
+{% block conteudo %}
+{% set completo = leitor and leitor.acesso_completo %}
+<section class="hero">
+  <div>
+    <div class="sobre">Contabilidade Consultiva</div>
+    <h1>Biblioteca <em>Canella & Santos</em></h1>
+    <p>Materiais gratuitos para quem quer entender melhor a contabilidade, os tributos e a gestão do próprio negócio.
+       {% if not completo %}Escolha um livro e libere o acesso em menos de um minuto.{% else %}Clique em um livro para ler ou baixar.{% endif %}</p>
+  </div>
+  {% if not leitor %}
+    <a class="btn btn-ouro" href="/acesso">Liberar acesso gratuito</a>
+  {% endif %}
+</section>
+
+{% if acesso_parcial %}
+<div style="padding:0 20px"><div class="aviso-parcial">
+  <p>Você tem acesso aos ebooks do evento. <b>Complete seu cadastro para abrir a biblioteca inteira.</b></p>
+  <a class="btn btn-vinho btn-pq" href="/acesso">Completar cadastro</a>
+</div></div>
+{% endif %}
+
+<div class="estante-moldura">
+  <div class="estante" role="region" aria-label="Estante de ebooks">
+    {% if not prateleiras %}
+      <div class="vazia">
+        <h2>Estante em montagem</h2>
+        <p>Os primeiros ebooks chegam em breve.</p>
+      </div>
+      <div class="tabua"></div>
+    {% endif %}
+    {% for categoria, livros in prateleiras.items() %}
+    <div class="prateleira">
+      <div class="livros">
+        {% for e in livros %}
+        <button type="button" class="livro" data-slug="{{ e.slug }}" data-titulo="{{ e.titulo }}"
+                data-subtitulo="{{ e.subtitulo or '' }}" data-descricao="{{ e.descricao or '' }}"
+                data-categoria="{{ categoria }}" data-paginas="{{ e.paginas or '' }}"
+                data-capa="{{ '/capas/' ~ e.capa if e.capa else '' }}" data-liberado="{{ 1 if e.liberado else 0 }}"
+                title="{{ e.titulo }}" aria-label="{{ e.titulo }}{% if not e.liberado %} (acesso bloqueado){% endif %}">
+          <span class="capa">
+            {% if e.capa %}
+              <img src="/capas/{{ e.capa }}" alt="" loading="lazy" width="150" height="212">
+            {% else %}
+              <span class="sem-capa">{{ e.titulo }}</span>
+            {% endif %}
+            {% if not e.liberado %}
+              <span class="cadeado" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 8V7a3 3 0 1 1 6 0v3H9z"/></svg></span>
+            {% endif %}
+          </span>
+        </button>
+        {% endfor %}
+      </div>
+      <div class="tabua"><span class="plaquinha">{{ categoria }}</span></div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<dialog class="ficha" id="ficha" aria-labelledby="ficha-titulo">
+  <button class="fechar" type="button" aria-label="Fechar" onclick="this.closest('dialog').close()">×</button>
+  <div class="corpo">
+    <div class="capa" id="ficha-capa"></div>
+    <div>
+      <div class="cat" id="ficha-cat"></div>
+      <h2 id="ficha-titulo"></h2>
+      <p class="sub" id="ficha-sub"></p>
+      <p class="desc" id="ficha-desc"></p>
+      <div class="meta" id="ficha-meta"></div>
+      <div id="ficha-bloqueado" class="bloqueado" hidden>
+        {% if leitor %}Este ebook faz parte da biblioteca completa. Complete seu cadastro para liberar.
+        {% else %}Preencha um cadastro rápido e libere <b>todos os ebooks</b> gratuitamente.{% endif %}
+      </div>
+      <div class="acoes" id="ficha-acoes"></div>
+    </div>
+  </div>
+</dialog>
+
+<div class="toast" id="toast" role="status"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function(){
+  const ficha = document.getElementById('ficha');
+  const $ = id => document.getElementById(id);
+
+  function abrir(b){
+    const d = b.dataset;
+    $('ficha-capa').innerHTML = '';
+    if (d.capa){ const img = new Image(); img.src = d.capa; img.alt = 'Capa de ' + d.titulo; $('ficha-capa').appendChild(img); }
+    else { $('ficha-capa').innerHTML = '<span class="sem-capa"></span>'; $('ficha-capa').firstChild.textContent = d.titulo; }
+    $('ficha-cat').textContent = d.categoria;
+    $('ficha-titulo').textContent = d.titulo;
+    $('ficha-sub').textContent = d.subtitulo; $('ficha-sub').hidden = !d.subtitulo;
+    $('ficha-desc').textContent = d.descricao; $('ficha-desc').hidden = !d.descricao;
+    $('ficha-meta').textContent = d.paginas ? d.paginas + ' páginas · PDF' : 'PDF';
+    const liberado = d.liberado === '1';
+    $('ficha-bloqueado').hidden = liberado;
+    const acoes = $('ficha-acoes'); acoes.innerHTML = '';
+    const link = (href, cls, txt) => { const a = document.createElement('a'); a.href = href; a.className = 'btn ' + cls; a.textContent = txt; acoes.appendChild(a); };
+    if (liberado){
+      link('/ler/' + d.slug, 'btn-vinho', 'Ler agora');
+      link('/ler/' + d.slug + '/download', 'btn-linha', 'Baixar PDF');
+    } else {
+      link('/acesso?next=' + encodeURIComponent('/ler/' + d.slug), 'btn-ouro', 'Liberar acesso gratuito');
+      {% if not leitor %}link('/acesso?aba=entrar&next=' + encodeURIComponent('/ler/' + d.slug), 'btn-linha', 'Já tenho acesso');{% endif %}
+    }
+    ficha.showModal();
+  }
+
+  document.querySelectorAll('.livro').forEach(b => b.addEventListener('click', () => abrir(b)));
+  ficha.addEventListener('click', e => { if (e.target === ficha) ficha.close(); });
+
+  const p = new URLSearchParams(location.search);
+  if (p.has('bemvindo')){
+    const t = $('toast'); t.textContent = 'Acesso liberado! Aproveite a biblioteca.';
+    requestAnimationFrame(() => t.classList.add('ver'));
+    setTimeout(() => t.classList.remove('ver'), 4500);
+    history.replaceState(null, '', location.pathname);
+  }
+})();
+</script>
+{% endblock %}

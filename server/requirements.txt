@@ -1,0 +1,25 @@
+# Dependências da Biblioteca de Ebooks (mesma stack da Libby).
+
+# --- servidor web ---------------------------------------------------------
+fastapi
+uvicorn[standard]
+jinja2
+python-multipart
+
+# --- banco de dados (PostgreSQL compartilhado da VPS) ---------------------
+# O extra [binary] traz o libpq junto, sem precisar de pacote de sistema.
+psycopg[binary]
+psycopg-pool
+
+# --- PDF e imagem ---------------------------------------------------------
+# PyMuPDF gera a capa a partir da 1ª página e carimba a marca d'água no
+# download (nome + e-mail de quem baixou).
+# <2: a 2.0 passou a puxar onnxruntime (+ de 100 MB de IA de layout) que este
+# app não usa; a 1.x faz tudo o que precisamos.
+PyMuPDF>=1.24,<2
+Pillow
+
+# QR code dos eventos (PNG para imprimir / projetar).
+qrcode
+
+python-dotenv

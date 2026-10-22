@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="pt-br"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block titulo %}Biblioteca{% endblock %} · Canella & Santos</title>
+<meta name="description" content="Ebooks gratuitos da Canella & Santos Contabilidade Consultiva.">
+<meta name="theme-color" content="#6C1F2E">
+<link rel="icon" href="/static/img/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/static/img/favicon-32.png">
+<link rel="apple-touch-icon" href="/static/img/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css?v=2">
+{% block head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+{% block topo %}
+<header class="topo"><div class="in">
+  <a class="logo" href="/" aria-label="Biblioteca Canella & Santos — início">
+    <img src="/static/img/logo.png" alt="Canella & Santos Contabilidade Consultiva" width="157" height="46"></a>
+  <nav>
+    <a href="/" class="some-mobile">Biblioteca</a>
+    {% if leitor %}
+      <span class="ola">Olá, {{ leitor.nome.split(' ')[0] }}</span>
+      <a href="/sair">Sair</a>
+    {% else %}
+      <a href="/acesso?aba=entrar">Já tenho acesso</a>
+    {% endif %}
+  </nav>
+</div></header>
+{% endblock %}
+
+<main>{% block conteudo %}{% endblock %}</main>
+
+{% block rodape %}
+<footer class="rodape"><div class="in">
+  <div><b>Canella & Santos</b> · Contabilidade Consultiva</div>
+  <div>Seus dados são tratados conforme a LGPD e usados apenas para contato da Canella & Santos.</div>
+</div></footer>
+{% endblock %}
+<script>
+  // Evita clique duplo no envio e leva o foco ao 1º campo com erro.
+  document.querySelectorAll('form[data-enviando]').forEach(f => f.addEventListener('submit', () => {
+    const b = f.querySelector('button[type=submit]');
+    if (b) setTimeout(() => { b.disabled = true; b.textContent = f.dataset.enviando; });
+  }));
+  const comErro = document.querySelector('.tem-erro input, .tem-erro select');
+  if (comErro) comErro.focus();
+</script>
+{% block scripts %}{% endblock %}
+</body></html>

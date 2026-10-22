@@ -1,0 +1,48 @@
+{# Lista de eventos. Espera: eventos, url_base, hoje, voltar, mostrar_ebook #}
+<div class="eventos-lista">
+{% for ev in eventos %}
+  {% set expirado = ev.valido_ate and ev.valido_ate < hoje %}
+  {% set link = url_base ~ '/e/' ~ ev.token %}
+  <article class="ev-cartao{% if not ev.ativo or expirado or ev.visibilidade == 'oculto' %} ev-parado{% endif %}" id="ev{{ ev.id }}">
+    <button type="button" class="ev-qr" data-qr="/admin/eventos/{{ ev.id }}/qr.png" data-nome="{{ ev.nome }}" title="Ampliar QR code">
+      <img src="/admin/eventos/{{ ev.id }}/qr.png" alt="QR code de {{ ev.nome }}" loading="lazy" width="96" height="96">
+    </button>
+    <div class="ev-info">
+      <div class="ev-topo">
+        <h3>{{ ev.nome }}</h3>
+        {% if ev.visibilidade == 'oculto' %}<span class="etq etq-vinho" title="Mude a visibilidade do ebook para o QR voltar a abrir">Ebook oculto: QR não abre</span>
+        {% elif not ev.ativo %}<span class="etq etq-off">Desativado</span>
+        {% elif expirado %}<span class="etq etq-vinho">Expirou em {{ ev.valido_ate|dtbr }}</span>
+        {% else %}<span class="etq etq-ok">Funcionando</span>{% endif %}
+      </div>
+      <p class="ev-meta">
+        {% if mostrar_ebook %}<b>{{ ev.ebook_titulo }}</b> · {% endif %}
+        {{ 'Evento em ' ~ (ev.data_evento|dtbr) if ev.data_evento else 'Sem data' }} ·
+        <b>{{ ev.participantes }}</b> participante{{ '' if ev.participantes == 1 else 's' }}
+      </p>
+      <div class="ev-link">
+        <code>{{ link }}</code>
+        <button type="button" class="link-btn" data-copiar="{{ link }}">Copiar link</button>
+      </div>
+      <div class="ev-acoes">
+        <a class="btn btn-ouro btn-pq" href="/admin/eventos/{{ ev.id }}/imprimir" target="_blank" rel="noopener">Imprimir cartaz</a>
+        <a class="btn btn-linha btn-pq" href="/admin/eventos/{{ ev.id }}/qr.png?baixar=1">Baixar QR (PNG)</a>
+        <form method="post" action="/admin/eventos/{{ ev.id }}/validade" class="ev-validade">
+          <input type="hidden" name="voltar" value="{{ voltar }}#ev{{ ev.id }}">
+          <label>Vale até <input type="date" name="valido_ate" value="{{ ev.valido_ate.isoformat() if ev.valido_ate else '' }}"></label>
+          <button class="link-btn" type="submit">Salvar data</button>
+        </form>
+        <span class="ev-sep"></span>
+        <form method="post" action="/admin/eventos/{{ ev.id }}/alternar">
+          <input type="hidden" name="voltar" value="{{ voltar }}#ev{{ ev.id }}">
+          <button class="link-btn" type="submit">{{ 'Desativar QR' if ev.ativo else 'Reativar QR' }}</button></form>
+        <form method="post" action="/admin/eventos/{{ ev.id }}/excluir"
+              data-msg="Excluir o evento “{{ ev.nome }}”? O QR para de funcionar. Quem já entrou continua com o ebook."
+              onsubmit="return confirm(this.dataset.msg)">
+          <input type="hidden" name="voltar" value="{{ voltar }}">
+          <button class="link-btn perigo" type="submit">Excluir</button></form>
+      </div>
+    </div>
+  </article>
+{% endfor %}
+</div>

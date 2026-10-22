@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="pt-br"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cartaz — {{ ev.nome }}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  @page{size:A4;margin:0}
+  *{box-sizing:border-box}
+  body{margin:0;background:#888;font-family:'Source Sans 3',sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .barra{position:sticky;top:0;background:#222;color:#fff;padding:10px 16px;display:flex;gap:12px;align-items:center;justify-content:center;font-size:14px}
+  .barra button{background:#C8A369;border:0;border-radius:999px;padding:9px 20px;font:600 15px 'Source Sans 3';cursor:pointer}
+  .folha{width:210mm;height:297mm;margin:16px auto;background:#F3EDED;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+  .topo{background:#6C1F2E;padding:14mm 0 10mm;text-align:center;border-bottom:3mm solid #C8A369}
+  .topo img{height:22mm;width:auto}
+  .meio{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 18mm}
+  .selo{font:500 13pt 'Oswald';letter-spacing:4px;text-transform:uppercase;color:#915659}
+  h1{font:600 30pt/1.1 'Oswald';color:#6C1F2E;margin:4mm 0 3mm}
+  .sub{font-size:15pt;color:#4a3436;margin:0 0 9mm}
+  .qr{background:#fff;padding:5mm;border-radius:6mm;box-shadow:0 4mm 10mm rgba(108,31,46,.18)}
+  .qr img{width:88mm;height:88mm;display:block}
+  .passo{font-size:15pt;color:#2b1a1c;margin:8mm 0 2mm}
+  .link{font:12pt ui-monospace,Consolas,monospace;color:#6d5a5c}
+  .rodape{background:#000;color:#C8A369;text-align:center;padding:6mm;font:500 12pt 'Oswald';letter-spacing:2px}
+  @media print{body{background:none}.barra{display:none}.folha{margin:0;box-shadow:none}}
+</style></head>
+<body>
+<div class="barra">Cartaz A4 do evento · <button onclick="print()">Imprimir / salvar PDF</button></div>
+<div class="folha">
+  <div class="topo"><img src="/static/img/logo.png" alt="Canella & Santos"></div>
+  <div class="meio">
+    <div class="selo">{{ 'Exclusivo para participantes' if ev.visibilidade == 'evento' else 'Presente para participantes' }} · {{ ev.nome }}</div>
+    <h1>{{ ev.ebook_titulo }}</h1>
+    <p class="sub">Aponte a câmera do celular para o código e receba o ebook gratuitamente.</p>
+    <div class="qr"><img src="/admin/eventos/{{ ev.id }}/qr.png" alt="QR code"></div>
+    <p class="passo">Informe seu nome e e-mail e pronto: é só ler ou baixar.</p>
+    <div class="link">{{ url_base }}/e/{{ ev.token }}</div>
+  </div>
+  <div class="rodape">CANELLA & SANTOS · CONTABILIDADE CONSULTIVA</div>
+</div>
+</body></html>

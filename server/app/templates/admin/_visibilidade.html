@@ -1,0 +1,10 @@
+{# Seletor de visibilidade em cartões. Espera: visibilidades, atual #}
+<fieldset class="vis-opcoes">
+  <legend>Quem pode ver este ebook?</legend>
+  {% for chave, (rotulo, explica) in visibilidades.items() %}
+  <label class="vis-opcao vis-{{ chave }}">
+    <input type="radio" name="visibilidade" value="{{ chave }}" {% if atual == chave %}checked{% endif %}>
+    <span><b>{{ rotulo }}</b><small>{{ explica }}</small></span>
+  </label>
+  {% endfor %}
+</fieldset>

@@ -1,0 +1,23 @@
+{# Formulário de novo evento. Com 'ebook_fixo', o ebook já vem definido
+   (tela do ebook); sem ele, aparece a lista (tela de eventos). #}
+<form method="post" action="/admin/eventos" data-enviando="Criando…">
+  <input type="hidden" name="voltar" value="{{ voltar }}">
+  <div class="grade-form">
+    <div class="campo"><label for="ev-nome">Nome do evento *</label>
+      <input id="ev-nome" name="nome" required maxlength="160" placeholder="Ex.: Café com Contabilidade — Out/26">
+      <small>Aparece para o participante quando ele escaneia o QR.</small></div>
+    {% if ebook_fixo %}
+      <input type="hidden" name="ebook_id" value="{{ ebook_fixo.id }}">
+    {% else %}
+    <div class="campo"><label for="ev-ebook">Ebook que o evento libera *</label>
+      <select id="ev-ebook" name="ebook_id" required>
+        <option value="">Escolha…</option>
+        {% for e in ebooks %}<option value="{{ e.id }}" {% if ebook_sel == e.id %}selected{% endif %}>{{ e.titulo }} — {{ visibilidades[e.visibilidade][0] }}</option>{% endfor %}
+      </select></div>
+    {% endif %}
+    <div class="campo"><label for="ev-data">Data do evento</label><input id="ev-data" name="data_evento" type="date"></div>
+    <div class="campo"><label for="ev-val">QR vale até</label><input id="ev-val" name="valido_ate" type="date" min="{{ hoje.isoformat() }}">
+      <small>Em branco: 30 dias depois do evento.</small></div>
+  </div>
+  <button class="btn btn-vinho" type="submit">Criar evento e gerar QR code</button>
+</form>

@@ -1,0 +1,79 @@
+{% extends "admin/base.html" %}
+{% block titulo %}Ebooks{% endblock %}
+{% block conteudo %}
+<div class="adm-cab">
+  <div>
+    <h1>Ebooks</h1>
+    <p class="lead">Suba o PDF e a capa é gerada a partir da 1ª página. Depois de salvar, você pode criar o QR code de um evento na tela do ebook.</p>
+  </div>
+  <a class="btn btn-ouro" href="#novo" onclick="document.getElementById('novo').open = true">+ Adicionar ebook</a>
+</div>
+
+<details class="painel" id="novo" {% if erro or not ebooks %}open{% endif %}>
+  <summary class="cab"><h2>Adicionar ebook</h2><span class="etq etq-ouro">PDF até 100 MB</span></summary>
+  <div class="bd">
+    {% if erro %}<div class="alerta alerta-erro" role="alert">{{ erro }}</div>{% endif %}
+    <form method="post" action="/admin/ebooks" enctype="multipart/form-data" data-enviando="Enviando o PDF…">
+      <div class="grade-form">
+        <div class="campo"><label for="pdf">1. Arquivo PDF *</label><input id="pdf" name="pdf" type="file" accept="application/pdf,.pdf" required>
+          <small>Se o título estiver vazio, ele é preenchido com o nome do arquivo.</small></div>
+        <div class="campo"><label for="titulo">2. Título *</label><input id="titulo" name="titulo" value="{{ f.titulo or '' }}" required maxlength="200"></div>
+        <div class="campo"><label for="subtitulo">Subtítulo <span class="opc">(opcional)</span></label><input id="subtitulo" name="subtitulo" value="{{ f.subtitulo or '' }}" maxlength="250"></div>
+        <div class="campo"><label for="categoria">Prateleira</label>
+          <input id="categoria" name="categoria" list="cats" value="{{ f.categoria or '' }}" maxlength="80" placeholder="Ex.: Tributário">
+          <small>Cada prateleira da estante é uma categoria. Escolha uma existente ou digite uma nova.</small></div>
+        <div class="campo larga"><label for="descricao">Descrição <span class="opc">(aparece ao clicar no livro)</span></label>
+          <textarea id="descricao" name="descricao" maxlength="3000" placeholder="O que a pessoa vai aprender com este ebook? É o que convence a pedir acesso.">{{ f.descricao or '' }}</textarea></div>
+        <div class="campo"><label for="capa">Capa própria <span class="opc">(opcional)</span></label><input id="capa" name="capa" type="file" accept="image/png,image/jpeg,image/webp">
+          <small>Sem capa, usamos a 1ª página do PDF.</small></div>
+        <div class="campo"><label for="ordem">Posição na prateleira</label><input id="ordem" name="ordem" type="number" value="{{ f.ordem or 0 }}">
+          <small>Números menores ficam mais à esquerda.</small></div>
+        <div class="larga">{% with visibilidades=visibilidades, atual=f.visibilidade or 'publicado' %}{% include "admin/_visibilidade.html" %}{% endwith %}</div>
+      </div>
+      <button class="btn btn-vinho" type="submit">Salvar ebook</button>
+    </form>
+  </div>
+</details>
+<datalist id="cats">{% for c in categorias %}<option value="{{ c }}">{% endfor %}</datalist>
+
+<div class="painel">
+  <div class="cab"><h2>Seus ebooks ({{ ebooks|length }})</h2></div>
+  {% if ebooks %}
+  <div class="rolagem"><table class="tab">
+    <thead><tr><th></th><th>Título</th><th>Prateleira</th><th>Visibilidade</th>
+      <th class="num">Leituras</th><th class="num">Downloads</th><th>Eventos</th><th></th></tr></thead>
+    <tbody>
+    {% for e in ebooks %}
+      <tr>
+        <td><a href="/admin/ebooks/{{ e.id }}">{% if e.capa %}<img class="mini-capa" src="/capas/{{ e.capa }}" alt="">{% endif %}</a></td>
+        <td><a class="tab-titulo" href="/admin/ebooks/{{ e.id }}">{{ e.titulo }}</a>
+          {% if e.subtitulo %}<br><span class="tab-sub">{{ e.subtitulo }}</span>{% endif %}
+          <br><span class="tab-sub">{{ e.paginas or '?' }} páginas</span></td>
+        <td>{{ e.categoria or '—' }}</td>
+        <td><span class="etq etq-vis-{{ e.visibilidade }}">{{ visibilidades[e.visibilidade][0] }}</span></td>
+        <td class="num">{{ e.leituras }}</td>
+        <td class="num">{{ e.downloads }}</td>
+        <td>{% if e.eventos %}<a href="/admin/ebooks/{{ e.id }}#eventos">{{ e.eventos }} evento{{ '' if e.eventos == 1 else 's' }}</a>
+            {% else %}<a class="tab-sub" href="/admin/ebooks/{{ e.id }}#eventos">+ criar QR</a>{% endif %}</td>
+        <td><div class="acoes-linha">
+          <a class="btn btn-linha btn-pq" href="/admin/ebooks/{{ e.id }}">Editar</a>
+          <a class="link-btn" href="/admin/ebooks/{{ e.id }}/pdf" target="_blank" rel="noopener">Ver PDF</a>
+        </div></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% else %}<div class="vazio-adm">Nenhum ebook ainda. Use o formulário acima para adicionar o primeiro.</div>{% endif %}
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  // Título sugerido a partir do nome do arquivo ("guia-simples_2026.pdf" -> "Guia simples 2026").
+  document.getElementById('pdf').addEventListener('change', e => {
+    const t = document.getElementById('titulo'), f = e.target.files[0];
+    if (!f || t.value.trim()) return;
+    const nome = f.name.replace(/\.pdf$/i, '').replace(/[-_]+/g, ' ').trim();
+    t.value = nome.charAt(0).toUpperCase() + nome.slice(1);
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends "admin/base.html" %}
+{% block titulo %}{{ ebook.titulo }}{% endblock %}
+{% block conteudo %}
+<p class="migalha"><a href="/admin/ebooks">← Todos os ebooks</a></p>
+<div class="adm-cab">
+  <div>
+    <h1>{{ ebook.titulo }}</h1>
+    <p class="lead">
+      <span class="etq etq-vis-{{ ebook.visibilidade }}">{{ visibilidades[ebook.visibilidade][0] }}</span>
+      {{ ebook.paginas or '?' }} páginas · {{ ebook.tamanho|tamanho }} · adicionado em {{ ebook.criado_em|dtbr }}</p>
+  </div>
+  <div class="acoes-linha">
+    <a class="btn btn-linha btn-pq" href="/admin/ebooks/{{ ebook.id }}/pdf" target="_blank" rel="noopener">Ver PDF</a>
+    <a class="btn btn-ouro btn-pq" href="#eventos">Eventos e QR ({{ eventos|length }})</a>
+  </div>
+</div>
+
+<div class="painel">
+  <div class="cab"><h2>Dados do ebook</h2></div>
+  <div class="bd">
+  {% if erro %}<div class="alerta alerta-erro" role="alert">{{ erro }}</div>{% endif %}
+  <form method="post" enctype="multipart/form-data" data-enviando="Salvando…">
+    <div class="ed-grade">
+      <div>
+        {% if ebook.capa %}<img src="/capas/{{ ebook.capa }}" alt="Capa atual" class="ed-capa">{% endif %}
+        <label class="check" style="margin-top:12px"><input type="checkbox" name="regerar_capa" value="1">
+          <span>Refazer a capa a partir da 1ª página do PDF</span></label>
+      </div>
+      <div class="grade-form">
+        <div class="campo"><label for="titulo">Título *</label><input id="titulo" name="titulo" value="{{ ebook.titulo }}" required maxlength="200"></div>
+        <div class="campo"><label for="subtitulo">Subtítulo</label><input id="subtitulo" name="subtitulo" value="{{ ebook.subtitulo or '' }}" maxlength="250"></div>
+        <div class="campo"><label for="categoria">Prateleira</label><input id="categoria" name="categoria" list="cats" value="{{ ebook.categoria or '' }}" maxlength="80"></div>
+        <div class="campo"><label for="ordem">Posição na prateleira</label><input id="ordem" name="ordem" type="number" value="{{ ebook.ordem or 0 }}">
+          <small>Números menores ficam mais à esquerda.</small></div>
+        <div class="campo larga"><label for="descricao">Descrição</label><textarea id="descricao" name="descricao" maxlength="3000">{{ ebook.descricao or '' }}</textarea></div>
+        <div class="campo"><label for="pdf">Trocar o PDF <span class="opc">(opcional)</span></label><input id="pdf" name="pdf" type="file" accept="application/pdf,.pdf">
+          <small>Os links e QR codes continuam valendo.</small></div>
+        <div class="campo"><label for="capa">Trocar a capa <span class="opc">(opcional)</span></label><input id="capa" name="capa" type="file" accept="image/png,image/jpeg,image/webp"></div>
+        <div class="larga">{% with visibilidades=visibilidades, atual=ebook.visibilidade %}{% include "admin/_visibilidade.html" %}{% endwith %}</div>
+      </div>
+    </div>
+    <div class="acoes-linha" style="margin-top:6px">
+      <button class="btn btn-vinho" type="submit">Salvar alterações</button>
+      <a class="btn btn-linha" href="/admin/ebooks">Voltar</a>
+    </div>
+  </form>
+  </div>
+</div>
+<datalist id="cats">{% for c in categorias %}<option value="{{ c }}">{% endfor %}</datalist>
+
+<div class="painel" id="eventos">
+  <div class="cab"><h2>Eventos e QR code deste ebook</h2>
+    {% if ebook.visibilidade == 'oculto' %}<span class="etq etq-vinho">Ebook oculto: os QR codes não abrem</span>{% endif %}</div>
+  <div class="bd">
+    <p class="dica">Quem escaneia o QR informa nome e e-mail e recebe este ebook na hora{% if ebook.visibilidade == 'evento' %}, que é exclusivo de eventos e não aparece na estante{% endif %}.
+       Para ter a biblioteca completa, a pessoa ainda precisa fazer o cadastro.</p>
+    {% if eventos %}
+      {% with voltar='/admin/ebooks/' ~ ebook.id, mostrar_ebook=False %}{% include "admin/_eventos_tabela.html" %}{% endwith %}
+      <details class="novo-ev"><summary class="btn btn-linha btn-pq">+ Novo evento com este ebook</summary>
+        <div style="margin-top:16px">{% with ebook_fixo=ebook, voltar='/admin/ebooks/' ~ ebook.id %}{% include "admin/_evento_form.html" %}{% endwith %}</div>
+      </details>
+    {% else %}
+      {% with ebook_fixo=ebook, voltar='/admin/ebooks/' ~ ebook.id %}{% include "admin/_evento_form.html" %}{% endwith %}
+    {% endif %}
+  </div>
+</div>
+
+<div class="painel zona-perigo"><div class="cab"><div><h2>Excluir ebook</h2>
+  <p class="dica" style="margin:4px 0 0">Apaga o PDF, a capa, os eventos e o histórico de leituras. Para só tirar do ar, use a visibilidade "Oculto".</p></div>
+  <form method="post" action="/admin/ebooks/{{ ebook.id }}/excluir"
+        data-msg="Excluir “{{ ebook.titulo }}” definitivamente? O PDF, a capa, {{ eventos|length }} evento(s) e o histórico de leituras serão apagados."
+        onsubmit="return confirm(this.dataset.msg)">
+    <button class="btn btn-linha btn-pq btn-perigo" type="submit">Excluir definitivamente</button>
+  </form></div>
+</div>
+{% endblock %}

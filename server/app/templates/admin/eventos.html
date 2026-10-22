@@ -1,0 +1,31 @@
+{% extends "admin/base.html" %}
+{% block titulo %}Eventos e QR{% endblock %}
+{% block conteudo %}
+<div class="adm-cab">
+  <div>
+    <h1>Eventos e QR code</h1>
+    <p class="lead">Quem escaneia o QR informa nome e e-mail e recebe <b>só o ebook do evento</b>. Para a biblioteca completa, a pessoa ainda faz o cadastro.</p>
+  </div>
+</div>
+
+<div class="painel">
+  <div class="cab"><h2>Novo evento</h2></div>
+  <div class="bd">
+    {% if not ebooks %}
+      <div class="vazio-adm">Primeiro <a href="/admin/ebooks">adicione o ebook</a> que o evento vai liberar.</div>
+    {% else %}
+      {% with ebook_fixo=None, voltar='/admin/eventos' %}{% include "admin/_evento_form.html" %}{% endwith %}
+      <p class="dica" style="margin:14px 0 0">Material exclusivo do evento? Ao adicionar o ebook, marque <b>"Só eventos"</b>: ele não aparece na estante e só quem escaneia o QR recebe.</p>
+    {% endif %}
+  </div>
+</div>
+
+<div class="painel">
+  <div class="cab"><h2>Eventos ({{ eventos|length }})</h2></div>
+  <div class="bd">
+  {% if eventos %}
+    {% with voltar='/admin/eventos', mostrar_ebook=True %}{% include "admin/_eventos_tabela.html" %}{% endwith %}
+  {% else %}<div class="vazio-adm">Nenhum evento ainda.</div>{% endif %}
+  </div>
+</div>
+{% endblock %}

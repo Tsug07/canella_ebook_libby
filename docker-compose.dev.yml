@@ -1,0 +1,17 @@
+# Postgres LOCAL, so para desenvolver na maquina (na VPS usa-se o compartilhado).
+#   docker compose -f docker-compose.dev.yml up -d
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ebooks_postgres_dev
+    environment:
+      POSTGRES_USER: ebooks
+      POSTGRES_PASSWORD: ebooks
+      POSTGRES_DB: ebooks
+    ports:
+      - "5544:5432"
+    volumes:
+      - ebooks_pg_dev:/var/lib/postgresql/data
+
+volumes:
+  ebooks_pg_dev:

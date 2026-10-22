@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block titulo %}{{ titulo }}{% endblock %}
+{% block conteudo %}
+<div style="padding:0 16px">
+  <div class="aviso">
+    <h1>{{ titulo }}</h1>
+    <p>{{ texto }}</p>
+    <a class="btn btn-vinho" href="{{ link or '/' }}">{{ link_texto or 'Voltar à biblioteca' }}</a>
+  </div>
+</div>
+{% endblock %}

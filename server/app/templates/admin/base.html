@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="pt-br"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>{% block titulo %}Painel{% endblock %} · Biblioteca Canella & Santos</title>
+<link rel="icon" href="/static/img/favicon.ico" sizes="any">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css?v=2">
+</head>
+<body class="admin">
+{% block topo %}
+<header class="adm-topo"><div class="in">
+  <a href="/admin"><img src="/static/img/logo.png" alt="Canella & Santos" width="130" height="38"></a>
+  <nav>
+    <a href="/admin/ebooks" class="{{ 'ativo' if aba == 'ebooks' }}">Ebooks</a>
+    <a href="/admin/eventos" class="{{ 'ativo' if aba == 'eventos' }}">Eventos e QR</a>
+    <a href="/admin/leads" class="{{ 'ativo' if aba == 'leads' }}">Leads</a>
+  </nav>
+  <div class="dir"><a href="/" target="_blank" rel="noopener">Ver estante ↗</a><a href="/admin/sair">Sair</a></div>
+</div></header>
+{% endblock %}
+<main class="adm">
+  {% if msg %}<div class="alerta alerta-ok" role="status">{{ msg }}</div>{% endif %}
+  {% if msg_erro %}<div class="alerta alerta-erro" role="alert">{{ msg_erro }}</div>{% endif %}
+  {% block conteudo %}{% endblock %}
+</main>
+
+<dialog class="qr-grande" id="qr-grande" aria-label="QR code ampliado">
+  <p id="qr-nome" style="margin:0 0 10px;font:600 18px var(--f-titulo);color:var(--vinho)"></p>
+  <img id="qr-img" alt="QR code ampliado">
+  <div style="margin-top:12px"><button class="btn btn-vinho btn-pq" type="button" onclick="this.closest('dialog').close()">Fechar</button></div>
+</dialog>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+  const toast = msg => { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('ver');
+                         clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('ver'), 2200); };
+
+  // Botão de envio mostra que está trabalhando (upload de PDF grande demora).
+  document.querySelectorAll('form[data-enviando]').forEach(f => f.addEventListener('submit', () => {
+    const b = f.querySelector('button[type=submit]');
+    if (b) { b.disabled = true; b.textContent = f.dataset.enviando; }
+  }));
+
+  // Copiar link do QR.
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-copiar]');
+    if (!b) return;
+    navigator.clipboard.writeText(b.dataset.copiar).then(() => toast('Link copiado!'), () => prompt('Copie o link:', b.dataset.copiar));
+  });
+
+  // QR ampliado (para conferir/escanear direto da tela).
+  const dlg = document.getElementById('qr-grande');
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-qr]');
+    if (!b) return;
+    document.getElementById('qr-img').src = b.dataset.qr;
+    document.getElementById('qr-nome').textContent = b.dataset.nome || '';
+    dlg.showModal();
+  });
+  dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+
+  // Mensagem de sucesso some sozinha; a de erro fica até a pessoa ler.
+  const ok = document.querySelector('.adm > .alerta-ok');
+  if (ok) setTimeout(() => ok.style.display = 'none', 7000);
+  if (location.search.includes('msg=') || location.search.includes('err='))
+    history.replaceState(null, '', location.pathname + location.hash);
+})();
+</script>
+{% block scripts %}{% endblock %}
+</body></html>

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block titulo %}{{ ev.titulo }}{% endblock %}
+{% block rodape %}{% endblock %}
+{% block conteudo %}
+<div class="evento-wrap">
+  <div class="evento">
+    <div class="lado">
+      <div class="capa">
+        {% if ev.capa %}<img src="/capas/{{ ev.capa }}" alt="Capa de {{ ev.titulo }}">
+        {% else %}<span class="sem-capa">{{ ev.titulo }}</span>{% endif %}
+      </div>
+      <div class="selo">{{ 'Exclusivo para participantes' if ev.visibilidade == 'evento' else 'Presente para participantes' }}</div>
+      <div class="nome-ev">{{ ev.nome }}</div>
+    </div>
+    <div class="principal">
+      <h1>{{ ev.titulo }}</h1>
+      {% if ev.subtitulo %}<p style="margin:0 0 6px;color:var(--texto-suave)">{{ ev.subtitulo }}</p>{% endif %}
+      <p style="margin:0 0 20px">Obrigado por participar! Informe seu nome e e-mail para ler online ou baixar o ebook.</p>
+      <form method="post" novalidate data-enviando="Liberando…">
+        <div class="oculto" aria-hidden="true"><label>Site <input name="site" tabindex="-1" autocomplete="off"></label></div>
+        <div class="campo{% if erros.nome %} tem-erro{% endif %}">
+          <label for="c-nome">Nome *</label>
+          <input id="c-nome" name="nome" value="{{ f.nome or '' }}" autocomplete="name" maxlength="120" required>
+          {% if erros.nome %}<div class="erro">{{ erros.nome }}</div>{% endif %}
+        </div>
+        <div class="campo{% if erros.email %} tem-erro{% endif %}">
+          <label for="c-email">E-mail *</label>
+          <input id="c-email" name="email" type="email" value="{{ f.email or '' }}" autocomplete="email" maxlength="160" required>
+          {% if erros.email %}<div class="erro">{{ erros.email }}</div>{% endif %}
+        </div>
+        <label class="check"><input type="checkbox" name="consentimento" value="1" required {% if f.consentimento %}checked{% endif %}>
+          <span>Concordo que a Canella & Santos armazene meus dados para liberar o acesso e entrar em contato, conforme a LGPD. *</span></label>
+        {% if erros.consentimento %}<div class="alerta alerta-erro">{{ erros.consentimento }}</div>{% endif %}
+        <button class="btn btn-ouro btn-bloco" type="submit">Acessar meu ebook</button>
+        <p class="nota">Já recebeu este ebook antes? Use o mesmo e-mail e ele abre de novo.</p>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

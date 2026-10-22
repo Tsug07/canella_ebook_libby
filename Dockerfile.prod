@@ -1,0 +1,34 @@
+# ============================================================================
+# Biblioteca de Ebooks — imagem de producao (FastAPI + Jinja2).
+# Banco: PostgreSQL compartilhado da VPS (DATABASE_URL).
+# PDFs e capas: volume em /var/lib/ebooks (DATA_DIR), fora da imagem.
+# ============================================================================
+FROM python:3.12-slim
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    TZ=America/Sao_Paulo \
+    DATA_DIR=/var/lib/ebooks
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      ca-certificates tzdata curl \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app/server
+
+# Dependencias primeiro (cache de camada).
+COPY server/requirements.txt requirements.txt
+RUN pip install --upgrade pip && pip install -r requirements.txt
+
+COPY server/ /app/server/
+
+EXPOSE 8020
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD curl -fsS http://localhost:8020/saude >/dev/null || exit 1
+
+# 2 workers: o app nao guarda estado em memoria (sessao no cookie, dados no
+# Postgres, arquivos no volume), entao pode rodar em paralelo.
+CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8020", \
+     "--workers", "2", "--proxy-headers", "--forwarded-allow-ips", "*"]

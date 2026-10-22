@@ -1,0 +1,21 @@
+services:
+  ebooks:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    container_name: canella_ebooks
+    restart: unless-stopped
+    env_file: .env.production
+    volumes:
+      # PDFs e capas. Fora da imagem: cada deploy recria a imagem e levaria os
+      # ebooks junto. O banco NAO esta aqui: e o PostgreSQL compartilhado da VPS.
+      - ebooks_dados:/var/lib/ebooks
+    networks:
+      - contask_network
+
+networks:
+  contask_network:
+    external: true
+
+volumes:
+  ebooks_dados:

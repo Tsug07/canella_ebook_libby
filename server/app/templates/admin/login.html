@@ -1,0 +1,21 @@
+{% extends "admin/base.html" %}
+{% block titulo %}Entrar{% endblock %}
+{% block topo %}{% endblock %}
+{% block conteudo %}
+<div style="max-width:380px;margin:60px auto">
+  <div style="background:var(--vinho);border-radius:14px 14px 0 0;padding:22px;text-align:center">
+    <img src="/static/img/logo.png" alt="Canella & Santos" style="margin:0 auto;height:56px;width:auto">
+  </div>
+  <div class="cartao" style="border-radius:0 0 14px 14px">
+    <div class="cab"><h2>Painel da biblioteca</h2><p>Acesso da equipe</p></div>
+    <form method="post" action="/admin/login">
+      <input type="hidden" name="next" value="{{ next }}">
+      {% if sem_senha %}<div class="alerta alerta-erro">ADMIN_SENHA não está definida no .env — o painel fica trancado até ela ser configurada.</div>{% endif %}
+      {% if erro %}<div class="alerta alerta-erro">{{ erro }}</div>{% endif %}
+      <div class="campo"><label for="senha">Senha</label>
+        <input id="senha" name="senha" type="password" autocomplete="current-password" required autofocus></div>
+      <button class="btn btn-vinho btn-bloco" type="submit">Entrar</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

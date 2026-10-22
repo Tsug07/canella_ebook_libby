@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+!.env.production.example
+server/.env
+# PDFs e capas enviados em dev (em producao ficam no volume)
+server/dados/

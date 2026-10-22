@@ -1,0 +1,56 @@
+{% extends "admin/base.html" %}
+{% block titulo %}Leads{% endblock %}
+{% block conteudo %}
+<h1>Leads</h1>
+<p class="lead">Todos que pediram acesso, pelo cadastro ou por evento.</p>
+
+<div class="resumo">
+  <div><b>{{ resumo.total }}</b><span>contatos no total</span></div>
+  <div><b>{{ resumo.completos }}</b><span>com biblioteca completa</span></div>
+  <div><b>{{ resumo.so_evento }}</b><span>só ebook de evento</span></div>
+  <div><b>{{ resumo.semana }}</b><span>novos nos últimos 7 dias</span></div>
+</div>
+
+<div class="painel">
+  <div class="cab">
+    <form class="filtros" method="get">
+      <input name="busca" value="{{ busca }}" placeholder="Buscar nome, e-mail ou empresa" aria-label="Buscar">
+      <select name="tipo" aria-label="Tipo de acesso" onchange="this.form.submit()">
+        <option value="">Todos</option>
+        <option value="completo" {% if tipo == 'completo' %}selected{% endif %}>Biblioteca completa</option>
+        <option value="evento" {% if tipo == 'evento' %}selected{% endif %}>Só evento</option>
+      </select>
+      <button class="btn btn-linha btn-pq" type="submit">Filtrar</button>
+    </form>
+    <a class="btn btn-ouro btn-pq" href="/admin/leads.csv?busca={{ busca|urlencode }}&tipo={{ tipo|urlencode }}">Exportar planilha (CSV)</a>
+  </div>
+  {% if leads %}
+  <div class="rolagem"><table class="tab">
+    <thead><tr><th>Contato</th><th>Empresa / cargo</th><th>Telefone</th><th>Acesso</th><th>Origem</th>
+      <th class="num">Leituras</th><th class="num">Downloads</th><th>Cadastro</th><th></th></tr></thead>
+    <tbody>
+    {% for p in leads %}
+      <tr>
+        <td><b>{{ p.nome }}</b><br><a href="mailto:{{ p.email }}" style="font-size:13.5px">{{ p.email }}</a></td>
+        <td>{{ p.empresa or '—' }}{% if p.cargo %}<br><span style="font-size:13px;color:var(--texto-suave)">{{ p.cargo }}</span>{% endif %}
+            {% if p.cnpj %}<br><span style="font-size:12.5px;color:var(--texto-suave)">CNPJ {{ p.cnpj|cnpj }}</span>{% endif %}</td>
+        <td>{% if p.telefone %}{% set dig = p.telefone|replace('(','')|replace(')','')|replace(' ','')|replace('-','') %}
+              <a href="https://wa.me/55{{ dig }}" target="_blank" rel="noopener">{{ p.telefone }}</a>{% else %}—{% endif %}</td>
+        <td>{% if p.acesso_completo %}<span class="etq etq-ok">Completo</span>{% else %}<span class="etq etq-ouro">Só evento</span>{% endif %}
+            {% if p.aceita_novidades %}<br><span style="font-size:12px;color:var(--ok)">✓ aceita novidades</span>{% endif %}</td>
+        <td style="font-size:13.5px">{{ p.origem or '—' }}{% if p.eventos %}<br><span style="color:var(--texto-suave)">Eventos: {{ p.eventos }}</span>{% endif %}
+            {% if p.como_conheceu %}<br><span style="color:var(--texto-suave)">Conheceu: {{ p.como_conheceu }}</span>{% endif %}</td>
+        <td class="num">{{ p.leituras }}</td>
+        <td class="num">{{ p.downloads }}</td>
+        <td style="font-size:13.5px;white-space:nowrap">{{ p.criado_em|dtbr }}</td>
+        <td><form method="post" action="/admin/leads/{{ p.id }}/excluir"
+                  data-msg="Excluir os dados de {{ p.nome }}? (pedido LGPD) Esta ação não pode ser desfeita."
+                  onsubmit="return confirm(this.dataset.msg)">
+            <button class="link-btn perigo" type="submit" title="Excluir dados (LGPD)">Excluir</button></form></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% else %}<div class="vazio-adm">Nenhum contato {% if busca or tipo %}com esse filtro{% else %}ainda{% endif %}.</div>{% endif %}
+</div>
+{% endblock %}
