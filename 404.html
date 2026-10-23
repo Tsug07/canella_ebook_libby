@@ -1,0 +1,27 @@
+<!doctype html><html lang="pt-br"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Biblioteca Canella &amp; Santos</title>
+<style>body{font-family:system-ui,sans-serif;background:#F3EDED;color:#2b1a1c;text-align:center;padding:80px 20px}a{color:#6C1F2E}</style>
+</head><body>
+<p>Abrindo a demonstração…</p>
+<p><a id="ir" href="/canella_ebook_libby/">Ir para a estante</a></p>
+<script>
+// Endereços do sistema real (/admin, /acesso, /ebook/...) não existem como
+// arquivos na demonstração: leva para a tela equivalente.
+(function () {
+  var partes = location.pathname.split('/');
+  var base = '/' + (partes[1] || '') + '/';
+  var resto = '/' + partes.slice(2).join('/').replace(/\/+$/, '');
+  var s = document.createElement('script');
+  s.src = base + 'static/demo.js';
+  s.onload = function () {
+    var destino = (window.demoMapear && window.demoMapear(resto + location.search)) || 'index.html';
+    location.replace(base + destino);
+  };
+  s.onerror = function () { location.replace(base); };
+  document.getElementById('ir').href = base;
+  window.DEMO = {presentes: ["contratar-o-1o-funcionario"], evento_slug: "contratar-o-1o-funcionario", admin: {}};
+  document.head.appendChild(s);
+})();
+</script>
+</body></html>

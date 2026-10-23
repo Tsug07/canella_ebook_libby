@@ -36,6 +36,8 @@
     return 'index.html';
   }
 
+  window.demoMapear = mapear;  // usado pelo 404.html
+
   const avisar = msg => {
     let t = document.getElementById('demo-aviso');
     if (!t) { t = document.createElement('div'); t.id = 'demo-aviso'; document.body.appendChild(t); }
