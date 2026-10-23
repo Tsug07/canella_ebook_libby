@@ -19,7 +19,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="static/style.css?v=14">
+<link rel="stylesheet" href="static/style.css?v=16">
 
 </head>
 <body class="leitor"><div class="demo-faixa">Versão de <b>demonstração</b> para apresentação interna · dados fictícios · os formulários não enviam nada · <a href="admin-login.html">ver o painel da equipe</a> · <a href="index.html">ver a estante</a></div>
@@ -33,7 +33,7 @@
     <button class="zoom-ind" id="zoom-ind" type="button" title="Voltar para 100%" aria-label="Zoom atual; clique para voltar a 100%">100%</button>
     <button class="icone" id="mais" type="button" aria-label="Aumentar zoom">+</button>
     <span class="pag-ind" id="ind" aria-live="polite">–</span>
-    <a class="btn btn-ouro btn-pq" href="/ler/reforma-tributaria-o-que-muda/download" title="Baixar o PDF">Baixar<span class="some-mobile">&nbsp;PDF</span></a>
+    <a class="btn btn-ouro btn-pq btn-baixar" href="/ler/reforma-tributaria-o-que-muda/download" title="Baixar o PDF" aria-label="Baixar o PDF"><span class="baixar-icone" aria-hidden="true">⬇</span><span class="baixar-txt">Baixar<span class="some-mobile">&nbsp;PDF</span></span></a>
   </div>
 </div></header>
 
@@ -41,9 +41,12 @@
 <main>
 <div class="paginas" id="paginas"><div class="carregando">Abrindo o ebook…</div></div>
 <div class="folhear" id="folhear" hidden>
-  <button class="vira vira-ant" id="ant" type="button" aria-label="Página anterior">‹</button>
   <div class="folhear-livro" id="folhear-livro"></div>
-  <button class="vira vira-prox" id="prox" type="button" aria-label="Próxima página">›</button>
+  <div class="vira-linha">
+    <button class="vira vira-ant" id="ant" type="button" aria-label="Página anterior">‹</button>
+    <span class="vira-pag" id="ind-baixo" aria-hidden="true"></span>
+    <button class="vira vira-prox" id="prox" type="button" aria-label="Próxima página">›</button>
+  </div>
   <p class="folhear-dica" id="dica">Clique nas setas, use ← → do teclado ou arraste o canto da página</p>
 </div>
 
@@ -147,11 +150,12 @@
   let flip = null, paginasFlip = [], desenhadas = new Set();
 
   function tamanhoPagina(){
+    const estreito = window.innerWidth < 760;
     // tudo o que está acima do livro (barra, avisos) + o convite fixo embaixo
     const topo = caixaFolhear.getBoundingClientRect().top + window.scrollY;
     const convite = document.querySelector('.convite');
-    const altDisp = window.innerHeight - topo - (convite ? convite.offsetHeight : 0) - 70;
-    const estreito = window.innerWidth < 760;
+    // no celular as setas ficam embaixo do livro: reserva a linha delas
+    const altDisp = window.innerHeight - topo - (convite ? convite.offsetHeight : 0) - (estreito ? 118 : 70);
     const largDisp = window.innerWidth - (estreito ? 24 : 150);
     const r = base.width / base.height;
     let h = Math.max(260, altDisp), w = h * r;
@@ -182,6 +186,7 @@
     const dupla = flip && flip.getOrientation() === 'landscape' && i > 0 && i < total - 1;
     const a = i + 1, b = Math.min(i + 2, total);
     ind.textContent = (dupla && b > a ? a + '–' + b : a) + ' / ' + total;
+    document.getElementById('ind-baixo').textContent = ind.textContent;
     document.getElementById('ant').disabled = i <= 0;
     document.getElementById('prox').disabled = i >= total - (dupla ? 2 : 1);
   }
@@ -191,6 +196,8 @@
     livroWrap.innerHTML = '';
     desenhadas = new Set();
     const {w, h, estreito} = tamanhoPagina();
+    livroWrap.style.width = (estreito ? w : w * 2) + 'px';
+    livroWrap.style.height = h + 'px';
     const raiz = document.createElement('div');
     livroWrap.appendChild(raiz);
     paginasFlip = [];
@@ -208,8 +215,6 @@
       showPageCorners: true, drawShadow: true,
     });
     flip.loadFromHTML(paginasFlip);
-    livroWrap.style.width = (estreito ? w : w * 2) + 'px';
-    livroWrap.style.height = h + 'px';
     flip.on('flip', e => { vizinhanca(e.data); indicadorFlip(e.data); esconderDica(); });
     flip.on('changeOrientation', () => indicadorFlip(flip.getCurrentPageIndex()));
     vizinhanca(inicio || 0); indicadorFlip(inicio || 0);
@@ -260,10 +265,20 @@
       if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); flip.flipPrev(); }
     }
   });
-  let t; window.addEventListener('resize', () => {
+  // Girar o celular, redimensionar a janela ou o DevTools: refaz o livro no
+  // tamanho novo (uma página no celular, duas no computador), na mesma página.
+  let t, ultimaLargura = window.innerWidth, ultimaAltura = window.innerHeight;
+  const aoRedimensionar = () => {
     clearTimeout(t);
-    t = setTimeout(() => modo === 'folhear' ? montarFlip(paginaAtual()) : aplicarZoom(zoom), 250);
-  });
+    t = setTimeout(() => {
+      if (window.innerWidth === ultimaLargura && window.innerHeight === ultimaAltura) return;
+      ultimaLargura = window.innerWidth; ultimaAltura = window.innerHeight;
+      if (!doc) return;
+      if (modo === 'folhear') montarFlip(paginaAtual()); else aplicarZoom(zoom);
+    }, 250);
+  };
+  window.addEventListener('resize', aoRedimensionar);
+  if (window.ResizeObserver) new ResizeObserver(aoRedimensionar).observe(document.documentElement);
 
   lib.getDocument({url: URL_PDF, withCredentials: true}).promise.then(async d => {
     doc = d; total = d.numPages;
@@ -289,4 +304,4 @@
 })();
 </script>
 
-<script>window.DEMO = {"presentes": ["contratar-o-1o-funcionario"], "evento_slug": "contratar-o-1o-funcionario", "ebook_admin": 104, "admin": {}};</script><script src="static/demo.js"></script></body></html>
+<script>window.DEMO = {"presentes": ["contratar-o-1o-funcionario"], "evento_slug": "contratar-o-1o-funcionario", "ebook_admin": 151, "admin": {}};</script><script src="static/demo.js"></script></body></html>
