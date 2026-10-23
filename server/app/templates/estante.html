@@ -18,7 +18,7 @@ data-publico="{{ 1 if e.publico else 0 }}" data-data="{{ ('atualizado em ' ~ (e.
     <p>Materiais gratuitos para quem quer entender melhor a contabilidade, os tributos e a gestão do próprio negócio.
        {% if not completo %}Escolha um livro e libere o acesso em menos de um minuto.{% else %}Clique em um livro para ler ou baixar.{% endif %}</p>
   </div>
-  {% if not leitor %}
+  {% if not leitor and not equipe_logada %}
     <div class="hero-ctas">
       <a class="btn btn-ouro" href="/acesso">Liberar acesso gratuito</a>
       <a class="link-estudante" href="/acesso?perfil=estudante">🎓 Sou estudante</a>
@@ -26,7 +26,13 @@ data-publico="{{ 1 if e.publico else 0 }}" data-data="{{ ('atualizado em ' ~ (e.
   {% endif %}
 </section>
 
-{% if acesso_parcial %}
+{% if equipe_logada %}
+<div style="padding:0 20px"><div class="aviso-parcial aviso-equipe">
+  <p><b>Visão da equipe:</b> a biblioteca inteira está liberada para você, inclusive os exclusivos de eventos.
+    Suas leituras não entram nas estatísticas.</p>
+  <a class="btn btn-vinho btn-pq" href="/admin/ebooks">Voltar ao painel</a>
+</div></div>
+{% elif acesso_parcial %}
 <div style="padding:0 20px"><div class="aviso-parcial">
   <p>Você tem acesso aos ebooks do evento. <b>Complete seu cadastro para abrir a biblioteca inteira.</b></p>
   <a class="btn btn-vinho btn-pq" href="/acesso">Completar cadastro</a>

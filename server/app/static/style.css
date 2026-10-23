@@ -560,3 +560,5 @@ details.painel:not([open]) > summary{border-bottom:0}
 .ficha-rodape{align-items:center}
 .ficha-rodape .link-btn{padding:0;display:inline-flex;align-items:center;font:600 14px/1.2 var(--f-texto)}
 .ficha-rodape .compartilhar{margin-top:0}
+
+.aviso-equipe{border-left-color:var(--vinho);background:#fbf4f5}

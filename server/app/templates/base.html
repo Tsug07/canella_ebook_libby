@@ -29,7 +29,10 @@
     <img src="/static/img/logo.png" alt="Canella & Santos Contabilidade Consultiva" width="157" height="46"></a>
   <nav>
     <a href="/" class="some-mobile">Biblioteca</a>
-    {% if leitor %}
+    {% if equipe_logada %}
+      <span class="ola">Equipe: {{ equipe_logada.nome.split(' ')[0] }}</span>
+      <a href="/admin">Painel</a>
+    {% elif leitor %}
       <span class="ola">Olá, {{ leitor.nome.split(' ')[0] }}</span>
       <a href="/sair">Sair</a>
     {% else %}

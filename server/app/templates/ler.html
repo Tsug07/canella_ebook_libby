@@ -19,7 +19,10 @@
 {% block conteudo %}
 <div class="paginas" id="paginas"><div class="carregando">Abrindo o ebook…</div></div>
 
-{% if acesso_parcial %}
+{% if equipe_logada and ebook.visibilidade != 'publicado' %}
+<div class="convite"><div class="in"><p><b>Visão da equipe:</b> este ebook está
+  {{ 'como exclusivo de eventos' if ebook.visibilidade == 'evento' else 'oculto' }}; o público não o vê na estante.</p></div></div>
+{% elif acesso_parcial %}
 <div class="convite" id="convite"><div class="in">
   <p>Gostou? <b>A biblioteca completa é gratuita</b> — complete seu cadastro e libere todos os ebooks.</p>
   <div style="display:flex;gap:8px;align-items:center">

@@ -20,6 +20,10 @@ import time
 
 COOKIE_LEITOR = "biblioteca_leitor"
 COOKIE_ADMIN = "biblioteca_admin"
+# O cookie do painel só trafega em /admin. Este, com o mesmo conteúdo, vale no
+# site todo e só serve para a estante reconhecer a equipe (tudo liberado).
+# Não abre o painel: quem decide isso continua sendo o COOKIE_ADMIN.
+COOKIE_EQUIPE = "biblioteca_equipe"
 DURACAO_LEITOR = 60 * 60 * 24 * 365      # 1 ano: o lead não deve refazer o funil
 DURACAO_ADMIN = 60 * 60 * 12
 

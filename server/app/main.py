@@ -117,9 +117,26 @@ tpl.env.filters["tamanho"] = _tamanho
 tpl.env.filters["cnpj"] = lambda v: f"{v[:2]}.{v[2:5]}.{v[5:8]}/{v[8:12]}-{v[12:]}" if v and len(v) == 14 else (v or "")
 
 
+def equipe_na_estante(request: Request) -> dict | None:
+    """Usuário do painel navegando pela estante (vê e lê tudo, sem cadastro).
+
+    Mesmas regras do painel: só vale se a pessoa continua ativa e a sessão não
+    foi derrubada (troca de senha, "desconectar outros aparelhos").
+    """
+    if hasattr(request.state, "equipe_estante"):
+        return request.state.equipe_estante
+    dados = sessao.ler(request.cookies.get(sessao.COOKIE_EQUIPE))
+    u = equipe.por_id(dados["uid"]) if dados and dados.get("uid") else None
+    if u and (not u["ativo"] or u["sessao_versao"] != dados.get("v")):
+        u = None
+    request.state.equipe_estante = u
+    return u
+
+
 def _render(request: Request, template: str, **ctx):
     status = ctx.pop("status_code", 200)
     ctx.setdefault("leitor", leitor_atual(request))
+    ctx.setdefault("equipe_logada", equipe_na_estante(request))
     ctx.setdefault("url_base", _url_base(request))  # links absolutos (Open Graph, e-mail)
     return tpl.TemplateResponse(request, template, ctx, status_code=status)
 
@@ -251,7 +268,8 @@ def _substituto(ebook: dict) -> dict | None:
 @app.get("/", response_class=HTMLResponse)
 def estante(request: Request):
     leitor = leitor_atual(request)
-    completo = bool(leitor and leitor["acesso_completo"])
+    staff = equipe_na_estante(request)
+    completo = bool(staff or (leitor and leitor["acesso_completo"]))
     ganhos = ids_de_evento(leitor)
     campos = (f"id, slug, titulo, subtitulo, descricao, categoria, capa, paginas, destaque, criado_em, "
               f"pdf_atualizado_em, "
@@ -259,9 +277,16 @@ def estante(request: Request):
     ebooks = db.q(f"SELECT {campos} FROM ebook WHERE visibilidade = 'publicado' "
                   "ORDER BY ordem, criado_em DESC")
     prateleiras: dict[str, list] = {}
+    # A equipe vê também os exclusivos de evento, numa prateleira própria.
+    if staff:
+        exclusivos = db.q(f"SELECT {campos} FROM ebook WHERE visibilidade = 'evento' ORDER BY ordem, criado_em DESC")
+        for e in exclusivos:
+            e["liberado"], e["publico"] = True, False
+        if exclusivos:
+            prateleiras["Exclusivos de eventos (só a equipe vê)"] = exclusivos
     # Os exclusivos de evento não estão na estante pública: quem os ganhou
     # precisa reencontrá-los, então eles abrem uma prateleira própria no topo.
-    if ganhos:
+    elif ganhos:
         meus = db.q(f"SELECT {campos} FROM ebook WHERE visibilidade = 'evento' AND id = ANY(%s) "
                     "ORDER BY ordem, criado_em DESC", (list(ganhos),))
         for e in meus:
@@ -276,6 +301,14 @@ def estante(request: Request):
                    acesso_parcial=leitor is not None and not completo)
 
 
+def _equipe_le(request: Request, slug: str) -> dict | None:
+    """Ebook que a equipe pode abrir: tudo, menos o arquivado (oculto também,
+    para conferir antes de publicar)."""
+    if not equipe_na_estante(request):
+        return None
+    return db.one("SELECT * FROM ebook WHERE slug = %s AND visibilidade <> 'arquivado'", (slug,))
+
+
 @app.get("/ebook/{slug}", response_class=HTMLResponse)
 def ebook_pagina(request: Request, slug: str):
     """Página própria de cada ebook — é o link para compartilhar nas redes.
@@ -287,10 +320,11 @@ def ebook_pagina(request: Request, slug: str):
     if not ebook or ebook["visibilidade"] != "publicado":
         return _sem_acesso(request, ebook, slug)
     leitor = leitor_atual(request)
+    liberado = bool(equipe_na_estante(request)) or pode_ler(leitor, ebook)
     outros = db.q("""SELECT slug, titulo, capa FROM ebook WHERE visibilidade = 'publicado' AND id <> %s
                      ORDER BY (categoria IS NOT DISTINCT FROM %s) DESC, destaque DESC, criado_em DESC LIMIT 4""",
                   (ebook["id"], ebook["categoria"]))
-    return _render(request, "ebook.html", ebook=ebook, liberado=pode_ler(leitor, ebook), outros=outros,
+    return _render(request, "ebook.html", ebook=ebook, liberado=liberado, outros=outros,
                    url_base=_url_base(request))
 
 
@@ -559,6 +593,9 @@ def _aviso_arquivado(request: Request, ebook: dict):
 
 @app.get("/ler/{slug}", response_class=HTMLResponse)
 def ler(request: Request, slug: str):
+    interno = _equipe_le(request, slug)
+    if interno:  # equipe: não conta como leitura de lead
+        return _render(request, "ler.html", ebook=interno, acesso_parcial=False)
     ebook = _ebook_por_slug(slug)
     leitor = leitor_atual(request)
     if not ebook or not pode_ler(leitor, ebook):
@@ -570,8 +607,8 @@ def ler(request: Request, slug: str):
 
 @app.get("/ler/{slug}/arquivo")
 def arquivo(request: Request, slug: str):
-    ebook = _ebook_por_slug(slug)
-    if not ebook or not pode_ler(leitor_atual(request), ebook):
+    ebook = _equipe_le(request, slug) or _ebook_por_slug(slug)
+    if not ebook or not (equipe_na_estante(request) or pode_ler(leitor_atual(request), ebook)):
         return Response(status_code=403)
     return FileResponse(arq.PDFS / ebook["arquivo"], media_type="application/pdf",
                         headers={"Cache-Control": "private, no-store",
@@ -580,6 +617,13 @@ def arquivo(request: Request, slug: str):
 
 @app.get("/ler/{slug}/download")
 def download(request: Request, slug: str):
+    interno = _equipe_le(request, slug)
+    if interno:
+        staff = equipe_na_estante(request)
+        conteudo = arq.pdf_com_marca(interno["arquivo"], f"{staff['nome']} (equipe)", staff["email"] or f"@{staff['usuario']}")
+        return Response(conteudo, media_type="application/pdf", headers={
+            "Content-Disposition": f"attachment; filename=\"{interno['slug']}.pdf\"",
+            "Cache-Control": "private, no-store"})
     ebook = _ebook_por_slug(slug)
     leitor = leitor_atual(request)
     if not ebook or not pode_ler(leitor, ebook):
@@ -747,9 +791,12 @@ def _para_login(request: Request):
 
 
 def _cookie_admin(resp: Response, u: dict) -> Response:
-    resp.set_cookie(sessao.COOKIE_ADMIN, sessao.assinar({"uid": u["id"], "v": u["sessao_versao"]}, sessao.DURACAO_ADMIN),
-                    max_age=sessao.DURACAO_ADMIN, httponly=True, samesite="strict",
+    valor = sessao.assinar({"uid": u["id"], "v": u["sessao_versao"]}, sessao.DURACAO_ADMIN)
+    resp.set_cookie(sessao.COOKIE_ADMIN, valor, max_age=sessao.DURACAO_ADMIN, httponly=True, samesite="strict",
                     secure=COOKIE_SEGURO, path="/admin")
+    # Mesma sessão, visível na estante (para a equipe ver tudo liberado).
+    resp.set_cookie(sessao.COOKIE_EQUIPE, valor, max_age=sessao.DURACAO_ADMIN, httponly=True, samesite="lax",
+                    secure=COOKIE_SEGURO, path="/")
     return resp
 
 
@@ -890,6 +937,7 @@ def admin_sair(request: Request):
         equipe.registrar(u, "saiu do painel", "", _ip(request))
     resp = RedirectResponse("/admin/login", 303)
     resp.delete_cookie(sessao.COOKIE_ADMIN, path="/admin")
+    resp.delete_cookie(sessao.COOKIE_EQUIPE, path="/")
     return resp
 
 
