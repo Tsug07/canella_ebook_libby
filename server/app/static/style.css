@@ -607,3 +607,29 @@ body.livro-ampliado .folhear{align-items:flex-start;justify-content:flex-start;o
 .stf__item.--right .pf-conteudo{position:relative}
 .stf__item.--right .pf-conteudo::after{left:0;background:linear-gradient(to right,rgba(0,0,0,.16),rgba(0,0,0,0))}
 .stf__item[data-density=hard] .pf-conteudo::after{display:none}
+
+/* leitor: setas e barra no celular */
+.vira-linha{display:contents}
+.vira-pag{display:none}
+.baixar-icone{display:none}
+@media (max-width:760px){
+  .vira-linha{display:flex;align-items:center;justify-content:center;gap:18px;margin-top:14px}
+  .vira{position:static;transform:none;width:56px;height:44px;font-size:30px;background:rgba(255,255,255,.1);border-radius:999px}
+  .vira-pag{display:block;color:#e9d7c7;font-size:14px;min-width:64px;text-align:center;font-variant-numeric:tabular-nums}
+  .folhear-dica{display:none}
+  body.modo-folhear .pag-ind{display:none}
+}
+@media (max-width:480px){
+  .barra-leitor .in{gap:6px;padding:8px 10px}
+  .barra-leitor .ctl{gap:4px}
+  .barra-leitor .tit{display:none}
+  .barra-leitor .voltar{margin-right:auto}
+  .icone{width:32px;height:32px;font-size:16px}
+  .btn-modo{height:32px;padding:0 9px}
+  .zoom-ind{min-width:40px;height:32px;font-size:12px}
+  .pag-ind{min-width:44px;font-size:12px}
+  .btn-baixar{padding:0;width:34px;height:32px}
+  .baixar-txt{display:none}
+  .baixar-icone{display:inline}
+}
+@media (max-width:760px){.folhear{justify-content:flex-start;min-height:0}}
