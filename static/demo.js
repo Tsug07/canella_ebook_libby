@@ -77,6 +77,11 @@
   const q = new URLSearchParams(location.search);
   if (q.get('next')) document.querySelectorAll('input[name=next]').forEach(i => i.value = q.get('next'));
   if (q.get('aba') === 'entrar') { const t = document.getElementById('t-ent'); if (t) t.click(); }
+  // /acesso?perfil=estudante: marca o perfil de estudante (no sistema real o servidor faz isso).
+  if (q.get('perfil') === 'estudante') {
+    const r = document.querySelector('input[name=perfil][value=estudante]');
+    if (r && !r.checked) { r.checked = true; r.dispatchEvent(new Event('change', {bubbles: true})); }
+  }
 
   // Painel: login já preenchido (na demonstração qualquer senha entra).
   if (location.pathname.endsWith('admin-login.html')) {
