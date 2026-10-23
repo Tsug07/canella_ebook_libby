@@ -1,0 +1,61 @@
+{# E-mail de boas-vindas. HTML de e-mail: tabela + estilo inline (Gmail/Outlook
+   ignoram <style> e flex). Os links são "mágicos": entram direto, de qualquer
+   aparelho, e marcam o e-mail como confirmado no painel. #}
+{% set primeiro = p.nome.split(' ')[0] %}
+<!doctype html>
+<html lang="pt-br"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#F3EDED;font-family:Arial,Helvetica,sans-serif;color:#2b1a1c">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F3EDED;padding:24px 12px">
+<tr><td align="center">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:12px;overflow:hidden">
+    <tr><td align="center" style="background:#6C1F2E;padding:22px;border-bottom:4px solid #C8A369">
+      <img src="{{ url_base }}/static/img/logo.png" alt="Canella & Santos" width="220" style="display:block;width:220px;max-width:70%;height:auto">
+    </td></tr>
+    <tr><td style="padding:28px 28px 8px">
+      <h1 style="margin:0 0 12px;font-size:24px;line-height:1.25;color:#6C1F2E">
+        {% if evento %}Obrigado por participar, {{ primeiro }}!{% else %}Sua biblioteca está liberada, {{ primeiro }}!{% endif %}</h1>
+      <p style="margin:0 0 18px;font-size:16px;line-height:1.55">
+        {% if evento %}Como prometido no <b>{{ evento }}</b>, aqui está o seu ebook. Guarde este e-mail: o botão abaixo abre o material de qualquer aparelho.
+        {% else %}Agora você tem acesso gratuito a todos os ebooks da Canella & Santos, para ler online ou baixar. Guarde este e-mail: os botões abaixo entram direto, de qualquer aparelho.{% endif %}
+      </p>
+    </td></tr>
+    {% if ebook %}
+    <tr><td style="padding:0 28px 8px">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F3EDED;border-radius:10px">
+        <tr>
+          {% if ebook.capa %}<td width="96" style="padding:14px 0 14px 14px;vertical-align:top">
+            <img src="{{ url_base }}/capas/{{ ebook.capa }}" alt="" width="82" style="display:block;width:82px;height:auto;border-radius:2px 4px 4px 2px"></td>{% endif %}
+          <td style="padding:14px;vertical-align:middle">
+            <div style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#915659;margin-bottom:4px">{{ 'Seu ebook' if evento else 'Você pediu' }}</div>
+            <div style="font-size:18px;font-weight:bold;color:#6C1F2E;line-height:1.3">{{ ebook.titulo }}</div>
+            {% if ebook.subtitulo %}<div style="font-size:14px;color:#6d5a5c;margin-top:4px">{{ ebook.subtitulo }}</div>{% endif %}
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+    {% endif %}
+    <tr><td align="center" style="padding:18px 28px 6px">
+      <a href="{{ link if ebook else biblioteca }}" style="display:inline-block;background:#C8A369;color:#000000;text-decoration:none;font-weight:bold;font-size:16px;padding:14px 28px;border-radius:999px">
+        {{ 'Ler o ebook agora' if ebook else 'Abrir a biblioteca' }}</a>
+    </td></tr>
+    {% if not evento and ebook %}
+    <tr><td align="center" style="padding:6px 28px 0">
+      <a href="{{ biblioteca }}" style="color:#6C1F2E;font-size:15px">Ver todos os ebooks da biblioteca</a>
+    </td></tr>
+    {% endif %}
+    {% if evento %}
+    <tr><td style="padding:20px 28px 0">
+      <p style="margin:0;font-size:15px;line-height:1.55;background:#fbf4f5;border-left:4px solid #C8A369;padding:12px 14px;border-radius:6px">
+        Quer mais? A biblioteca completa também é gratuita. <a href="{{ url_base }}/acesso" style="color:#6C1F2E;font-weight:bold">Complete seu cadastro</a> e libere todos os materiais.</p>
+    </td></tr>
+    {% endif %}
+    <tr><td style="padding:24px 28px 26px;font-size:13px;line-height:1.5;color:#6d5a5c">
+      Os links deste e-mail valem por 30 dias. Depois disso, use "Já tenho acesso" no site com este e-mail.<br>
+      Você recebeu esta mensagem porque se cadastrou na Biblioteca Canella & Santos. Para pedir a exclusão dos seus dados, basta responder este e-mail.
+    </td></tr>
+    <tr><td align="center" style="background:#000000;color:#C8A369;padding:14px;font-size:12px;letter-spacing:2px">
+      CANELLA & SANTOS · CONTABILIDADE CONSULTIVA</td></tr>
+  </table>
+</td></tr>
+</table>
+</body></html>

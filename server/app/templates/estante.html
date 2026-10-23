@@ -1,5 +1,14 @@
 {% extends "base.html" %}
 {% block titulo %}Biblioteca de Ebooks{% endblock %}
+
+{# Atributos que a ficha (modal) lê. Mesmo macro para a estante e os destaques. #}
+{% macro dados_livro(e, categoria) -%}
+data-slug="{{ e.slug }}" data-titulo="{{ e.titulo }}" data-subtitulo="{{ e.subtitulo or '' }}"
+data-descricao="{{ e.descricao or '' }}" data-categoria="{{ categoria }}" data-paginas="{{ e.paginas or '' }}"
+data-capa="{{ '/capas/' ~ e.capa if e.capa else '' }}" data-liberado="{{ 1 if e.liberado else 0 }}"
+data-publico="{{ 1 if e.publico else 0 }}"
+{%- endmacro %}
+
 {% block conteudo %}
 {% set completo = leitor and leitor.acesso_completo %}
 <section class="hero">
@@ -10,7 +19,10 @@
        {% if not completo %}Escolha um livro e libere o acesso em menos de um minuto.{% else %}Clique em um livro para ler ou baixar.{% endif %}</p>
   </div>
   {% if not leitor %}
-    <a class="btn btn-ouro" href="/acesso">Liberar acesso gratuito</a>
+    <div class="hero-ctas">
+      <a class="btn btn-ouro" href="/acesso">Liberar acesso gratuito</a>
+      <a class="link-estudante" href="/acesso?perfil=estudante">🎓 Sou estudante</a>
+    </div>
   {% endif %}
 </section>
 
@@ -19,6 +31,31 @@
   <p>Você tem acesso aos ebooks do evento. <b>Complete seu cadastro para abrir a biblioteca inteira.</b></p>
   <a class="btn btn-vinho btn-pq" href="/acesso">Completar cadastro</a>
 </div></div>
+{% endif %}
+
+{% if destaques %}
+<section class="destaques" aria-label="Em destaque">
+  <h2 class="destaques-tit">Em destaque</h2>
+  <div class="destaques-lista">
+    {% for e in destaques %}
+    <button type="button" class="destaque livro-abre" {{ dados_livro(e, e.categoria or 'Ebooks') }}>
+      <span class="capa">{% if e.capa %}<img src="/capas/{{ e.capa }}" alt="" width="110" height="156">{% else %}<span class="sem-capa">{{ e.titulo }}</span>{% endif %}</span>
+      <span class="destaque-txt">
+        {% if e.novo %}<span class="selo-novo">Novo</span>{% endif %}
+        <span class="destaque-cat">{{ e.categoria or 'Ebook' }}</span>
+        <b>{{ e.titulo }}</b>
+        {% if e.subtitulo %}<span class="destaque-sub">{{ e.subtitulo }}</span>{% endif %}
+        <span class="destaque-cta">{{ 'Ler agora →' if e.liberado else 'Ver ebook →' }}</span>
+      </span>
+    </button>
+    {% endfor %}
+  </div>
+  {% if destaques|length > 1 %}
+  <div class="destaques-pontos" role="tablist" aria-label="Escolher destaque">
+    {% for e in destaques %}<button type="button" aria-label="Destaque {{ loop.index }}: {{ e.titulo }}"{% if loop.first %} aria-current="true"{% endif %}></button>{% endfor %}
+  </div>
+  {% endif %}
+</section>
 {% endif %}
 
 <div class="estante-moldura">
@@ -34,17 +71,15 @@
     <div class="prateleira">
       <div class="livros">
         {% for e in livros %}
-        <button type="button" class="livro" data-slug="{{ e.slug }}" data-titulo="{{ e.titulo }}"
-                data-subtitulo="{{ e.subtitulo or '' }}" data-descricao="{{ e.descricao or '' }}"
-                data-categoria="{{ categoria }}" data-paginas="{{ e.paginas or '' }}"
-                data-capa="{{ '/capas/' ~ e.capa if e.capa else '' }}" data-liberado="{{ 1 if e.liberado else 0 }}"
-                title="{{ e.titulo }}" aria-label="{{ e.titulo }}{% if not e.liberado %} (acesso bloqueado){% endif %}">
+        <button type="button" class="livro livro-abre" {{ dados_livro(e, categoria) }}
+                title="{{ e.titulo }}" aria-label="{{ e.titulo }}{% if e.novo %} (novo){% endif %}{% if not e.liberado %} (acesso bloqueado){% endif %}">
           <span class="capa">
             {% if e.capa %}
               <img src="/capas/{{ e.capa }}" alt="" loading="lazy" width="150" height="212">
             {% else %}
               <span class="sem-capa">{{ e.titulo }}</span>
             {% endif %}
+            {% if e.novo %}<span class="fita-novo" aria-hidden="true">Novo</span>{% endif %}
             {% if not e.liberado %}
               <span class="cadeado" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 8V7a3 3 0 1 1 6 0v3H9z"/></svg></span>
             {% endif %}
@@ -73,6 +108,10 @@
         {% else %}Preencha um cadastro rápido e libere <b>todos os ebooks</b> gratuitamente.{% endif %}
       </div>
       <div class="acoes" id="ficha-acoes"></div>
+      <div class="ficha-rodape" id="ficha-rodape">
+        <a id="ficha-pagina" class="link-btn" href="#">Página do ebook</a>
+        <button type="button" id="ficha-compartilhar" class="link-btn compartilhar">Compartilhar</button>
+      </div>
     </div>
   </div>
 </dialog>
@@ -81,6 +120,7 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="/static/compartilhar.js?v=1"></script>
 <script>
 (function(){
   const ficha = document.getElementById('ficha');
@@ -105,12 +145,46 @@
       link('/ler/' + d.slug + '/download', 'btn-linha', 'Baixar PDF');
     } else {
       link('/acesso?next=' + encodeURIComponent('/ler/' + d.slug), 'btn-ouro', 'Liberar acesso gratuito');
-      {% if not leitor %}link('/acesso?aba=entrar&next=' + encodeURIComponent('/ler/' + d.slug), 'btn-linha', 'Já tenho acesso');{% endif %}
+      {% if not leitor %}link('/acesso?aba=entrar&next=' + encodeURIComponent('/ler/' + d.slug), 'btn-linha', 'Já tenho acesso');
+      const est = document.createElement('a'); est.className = 'link-estudante'; est.textContent = '🎓 Sou estudante';
+      est.href = '/acesso?perfil=estudante&next=' + encodeURIComponent('/ler/' + d.slug); acoes.appendChild(est);{% endif %}
     }
+    // Exclusivo de evento não tem página pública nem se compartilha.
+    const publico = d.publico === '1';
+    $('ficha-rodape').hidden = !publico;
+    $('ficha-pagina').href = '/ebook/' + d.slug;
+    $('ficha-compartilhar').dataset.url = location.origin + '/ebook/' + d.slug;
+    $('ficha-compartilhar').dataset.titulo = d.titulo;
     ficha.showModal();
   }
 
-  document.querySelectorAll('.livro').forEach(b => b.addEventListener('click', () => abrir(b)));
+  document.querySelectorAll('.livro-abre').forEach(b => b.addEventListener('click', () => abrir(b)));
+
+  // Carrossel dos destaques (só tem efeito no celular, onde a lista rola de lado).
+  const lista = document.querySelector('.destaques-lista');
+  const pontos = [...document.querySelectorAll('.destaques-pontos button')];
+  if (lista && pontos.length) {
+    const cards = [...lista.children];
+    const ir = i => lista.scrollTo({left: cards[i].offsetLeft - lista.offsetLeft - 16, behavior: 'smooth'});
+    let atual = 0;
+    lista.addEventListener('scroll', () => {
+      const meio = lista.scrollLeft + lista.clientWidth / 2;
+      atual = cards.reduce((m, c, i) => Math.abs(c.offsetLeft - lista.offsetLeft + c.offsetWidth / 2 - meio)
+                                        < Math.abs(cards[m].offsetLeft - lista.offsetLeft + cards[m].offsetWidth / 2 - meio) ? i : m, 0);
+      pontos.forEach((p, i) => p.setAttribute('aria-current', i === atual));
+    }, {passive: true});
+    pontos.forEach((p, i) => p.addEventListener('click', () => { parar(); ir(i); }));
+    // Avança sozinho a cada 5 s, até a pessoa tocar nele. Respeita "reduzir movimento".
+    let timer = null;
+    const parar = () => { clearInterval(timer); timer = null; };
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      timer = setInterval(() => {
+        if (lista.scrollWidth <= lista.clientWidth + 4) return;  // computador: nada a rolar
+        ir((atual + 1) % cards.length);
+      }, 5000);
+      ['pointerdown', 'touchstart', 'wheel'].forEach(ev => lista.addEventListener(ev, parar, {passive: true}));
+    }
+  }
   ficha.addEventListener('click', e => { if (e.target === ficha) ficha.close(); });
 
   const p = new URLSearchParams(location.search);
@@ -118,8 +192,9 @@
     const t = $('toast'); t.textContent = 'Acesso liberado! Aproveite a biblioteca.';
     requestAnimationFrame(() => t.classList.add('ver'));
     setTimeout(() => t.classList.remove('ver'), 4500);
-    history.replaceState(null, '', location.pathname);
   }
+  // Limpa ?bemvindo / ?origem da barra (o cookie da campanha já foi gravado).
+  if (location.search) history.replaceState(null, '', location.pathname);
 })();
 </script>
 {% endblock %}

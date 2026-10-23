@@ -1,0 +1,34 @@
+{% extends "admin/base.html" %}
+{% block titulo %}Atividade{% endblock %}
+{% block conteudo %}
+<div class="adm-cab"><div>
+  <h1>Atividade</h1>
+  <p class="lead">Quem fez o quê no painel: entradas, ebooks, eventos, exportação de leads, usuários e tentativas bloqueadas. Últimos 400 registros.</p>
+</div></div>
+
+<div class="painel">
+  <div class="cab">
+    <form class="filtros" method="get">
+      <select name="usuario" onchange="this.form.submit()" aria-label="Filtrar por pessoa">
+        <option value="0">Todas as pessoas</option>
+        {% for u in usuarios %}<option value="{{ u.id }}" {% if usuario_sel == u.id %}selected{% endif %}>{{ u.nome }}</option>{% endfor %}
+      </select>
+    </form>
+  </div>
+  {% if registros %}
+  <div class="rolagem"><table class="tab">
+    <thead><tr><th>Quando</th><th>Quem</th><th>O quê</th><th>IP</th></tr></thead>
+    <tbody>
+    {% for r in registros %}
+      <tr{% if 'bloqueado' in r.acao or 'EXCLUIU' in r.acao %} class="linha-alerta"{% endif %}>
+        <td class="tab-sub" style="white-space:nowrap">{{ r.ts|dtbr }}</td>
+        <td><b>{{ r.usuario_nome or '—' }}</b></td>
+        <td>{{ r.acao }}{% if r.detalhe %} <span class="tab-sub">· {{ r.detalhe }}</span>{% endif %}</td>
+        <td class="tab-sub"><code>{{ r.ip or '—' }}</code></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% else %}<div class="vazio-adm">Nada registrado ainda.</div>{% endif %}
+</div>
+{% endblock %}

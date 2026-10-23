@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/static/style.css?v=2">
+<link rel="stylesheet" href="/static/style.css?v=8">
 </head>
 <body class="admin">
 {% block topo %}
@@ -17,8 +17,17 @@
     <a href="/admin/ebooks" class="{{ 'ativo' if aba == 'ebooks' }}">Ebooks</a>
     <a href="/admin/eventos" class="{{ 'ativo' if aba == 'eventos' }}">Eventos e QR</a>
     <a href="/admin/leads" class="{{ 'ativo' if aba == 'leads' }}">Leads</a>
+    {% if eu and eu.papel == 'admin' %}
+    <a href="/admin/usuarios" class="{{ 'ativo' if aba == 'usuarios' }}">Usuários</a>
+    <a href="/admin/atividade" class="{{ 'ativo' if aba == 'atividade' }}">Atividade</a>
+    <a href="/admin/backups" class="{{ 'ativo' if aba == 'backups' }}">Backups</a>
+    {% endif %}
   </nav>
-  <div class="dir"><a href="/" target="_blank" rel="noopener">Ver estante ↗</a><a href="/admin/sair">Sair</a></div>
+  <div class="dir">
+    <a href="/" target="_blank" rel="noopener">Ver estante ↗</a>
+    {% if eu %}<a href="/admin/conta" class="eu{{ ' ativo' if aba == 'conta' }}" title="Minha conta">{{ eu.nome.split(' ')[0] }}{% if not eu.totp_segredo %} <span class="ponto-alerta" title="Verificação em duas etapas desativada"></span>{% endif %}</a>{% endif %}
+    <a href="/admin/sair">Sair</a>
+  </div>
 </div></header>
 {% endblock %}
 <main class="adm">
@@ -62,6 +71,24 @@
     dlg.showModal();
   });
   dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+
+  // Botão "Mostrar" nos campos de senha.
+  document.querySelectorAll('.ver-senha').forEach(b => b.addEventListener('click', () => {
+    const c = document.getElementById(b.dataset.alvo), ver = c.type === 'password';
+    c.type = ver ? 'text' : 'password'; b.textContent = ver ? 'Ocultar' : 'Mostrar';
+  }));
+
+  // Usuário sugerido a partir do nome ("Mariana Lima Souza" -> "mariana.souza"), até a pessoa editar.
+  document.querySelectorAll('[data-sugere-de]').forEach(u => {
+    const nome = document.getElementById(u.dataset.sugereDe);
+    let mexeu = !!u.value;
+    u.addEventListener('input', () => { mexeu = true; u.value = u.value.toLowerCase().replace(/\s/g, ''); });
+    if (nome) nome.addEventListener('input', () => {
+      if (mexeu) return;
+      const p = nome.value.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z ]/g, '').trim().split(/\s+/).filter(Boolean);
+      u.value = !p.length ? '' : (p.length === 1 ? p[0] : p[0] + '.' + p[p.length - 1]).slice(0, 30);
+    });
+  });
 
   // Mensagem de sucesso some sozinha; a de erro fica até a pessoa ler.
   const ok = document.querySelector('.adm > .alerta-ok');

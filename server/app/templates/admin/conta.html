@@ -1,0 +1,74 @@
+{% extends "admin/base.html" %}
+{% block titulo %}Minha conta{% endblock %}
+{% block conteudo %}
+<div class="adm-cab"><div>
+  <h1>Minha conta</h1>
+  <p class="lead">{{ eu.nome }} · usuário <b>@{{ eu.usuario }}</b>{% if eu.email %} · {{ eu.email }}{% endif %} · <span class="etq etq-ouro">{{ papeis[eu.papel][0] }}</span></p>
+</div></div>
+
+{% if eu.trocar_senha %}
+<div class="alerta alerta-erro" role="alert"><b>Crie a sua senha para continuar.</b> Você entrou com uma senha temporária; o painel libera assim que você trocar.</div>
+{% endif %}
+
+<div class="painel" id="senha">
+  <div class="cab"><h2>{{ 'Criar sua senha' if eu.trocar_senha else 'Trocar senha' }}</h2></div>
+  <div class="bd">
+    {% if erro_senha %}<div class="alerta alerta-erro" role="alert">{{ erro_senha }}</div>{% endif %}
+    <form method="post" action="/admin/conta/senha" data-enviando="Salvando…" style="max-width:420px">
+      <div class="campo"><label for="atual">{{ 'Senha temporária (a que você recebeu)' if eu.trocar_senha else 'Senha atual' }}</label>
+        <input id="atual" name="atual" type="password" autocomplete="current-password" required></div>
+      <div class="campo"><label for="nova">Senha nova</label>
+        <input id="nova" name="nova" type="password" autocomplete="new-password" minlength="10" required>
+        <small>No mínimo 10 caracteres, com letras e números. Ex.: Biblioteca@2026</small></div>
+      <div class="campo"><label for="nova2">Repita a senha nova</label>
+        <input id="nova2" name="nova2" type="password" autocomplete="new-password" required></div>
+      <button class="btn btn-vinho" type="submit">Salvar senha</button>
+    </form>
+  </div>
+</div>
+
+{% if not eu.trocar_senha %}
+<div class="painel" id="duas-etapas">
+  <div class="cab"><h2>Verificação em duas etapas</h2>
+    {% if eu.totp_segredo %}<span class="etq etq-ok">Ativada</span>{% else %}<span class="etq etq-vinho">Desativada</span>{% endif %}</div>
+  <div class="bd">
+    {% if erro_2fa %}<div class="alerta alerta-erro" role="alert">{{ erro_2fa }}</div>{% endif %}
+    {% if eu.totp_segredo %}
+      <p class="dica">Ao entrar, o painel pede o código de 6 dígitos do app no seu celular. Mesmo que alguém descubra a sua senha, não entra sem o celular.</p>
+      <form method="post" action="/admin/conta/2fa/desativar" class="linha-form">
+        <div class="campo" style="margin:0"><label for="senha-2fa">Para desativar, confirme sua senha</label>
+          <input id="senha-2fa" name="senha" type="password" autocomplete="current-password" required></div>
+        <button class="btn btn-linha btn-pq btn-perigo" type="submit">Desativar</button>
+      </form>
+    {% elif qr_2fa %}
+      <div class="config-2fa">
+        <div class="qr-2fa">{{ qr_2fa|safe }}</div>
+        <div>
+          <ol class="passos">
+            <li>Instale um app autenticador no celular: <b>Google Authenticator</b>, <b>Microsoft Authenticator</b> ou <b>Authy</b>.</li>
+            <li>No app, toque em <b>+</b> e escaneie este QR code.
+              <br><small>Sem câmera? Digite a chave: <code class="chave-2fa">{{ segredo_2fa }}</code></small></li>
+            <li>Digite abaixo o código de 6 dígitos que apareceu no app.</li>
+          </ol>
+          <form method="post" action="/admin/conta/2fa/ativar" class="linha-form">
+            <div class="campo" style="margin:0"><label for="codigo">Código do app</label>
+              <input id="codigo" name="codigo" inputmode="numeric" autocomplete="one-time-code" maxlength="7" required class="campo-codigo" placeholder="000000"></div>
+            <button class="btn btn-vinho" type="submit">Ativar</button>
+          </form>
+        </div>
+      </div>
+    {% else %}
+      <p class="dica"><b>Recomendado.</b> Além da senha, o login passa a pedir um código que muda a cada 30 segundos no seu celular. Leva 1 minuto para configurar.</p>
+      <form method="post" action="/admin/conta/2fa/iniciar"><button class="btn btn-ouro" type="submit">Configurar agora</button></form>
+    {% endif %}
+  </div>
+</div>
+
+<div class="painel">
+  <div class="cab"><div><h2>Aparelhos conectados</h2>
+    <p class="dica" style="margin:4px 0 0">Esqueceu o painel aberto num computador de outra pessoa? Desconecte todos os outros aparelhos.</p></div>
+    <form method="post" action="/admin/conta/sair-todos"><button class="btn btn-linha btn-pq" type="submit">Desconectar os outros aparelhos</button></form>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

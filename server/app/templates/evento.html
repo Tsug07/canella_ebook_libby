@@ -9,7 +9,7 @@
         {% if ev.capa %}<img src="/capas/{{ ev.capa }}" alt="Capa de {{ ev.titulo }}">
         {% else %}<span class="sem-capa">{{ ev.titulo }}</span>{% endif %}
       </div>
-      <div class="selo">{{ 'Exclusivo para participantes' if ev.visibilidade == 'evento' else 'Presente para participantes' }}</div>
+      <div class="selo">{% if ev.para_estudantes %}🎓 Para estudantes · {% endif %}{{ 'Exclusivo para participantes' if ev.visibilidade == 'evento' else 'Presente para participantes' }}</div>
       <div class="nome-ev">{{ ev.nome }}</div>
     </div>
     <div class="principal">

@@ -1,0 +1,20 @@
+{% extends "admin/base.html" %}
+{% block titulo %}Código de verificação{% endblock %}
+{% block topo %}{% endblock %}
+{% block conteudo %}
+<div class="login-caixa">
+  <div class="login-logo"><img src="/static/img/logo.png" alt="Canella & Santos"></div>
+  <div class="cartao" style="border-radius:0 0 14px 14px">
+    <div class="cab"><h2>Olá, {{ nome }}!</h2><p>Digite o código de 6 dígitos do seu app autenticador</p></div>
+    <form method="post" action="/admin/login/codigo" data-enviando="Conferindo…">
+      {% if erro %}<div class="alerta alerta-erro" role="alert">{{ erro }}</div>{% endif %}
+      <div class="campo"><label for="codigo">Código</label>
+        <input id="codigo" name="codigo" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9 ]{6,7}"
+               maxlength="7" required autofocus class="campo-codigo" placeholder="000000"></div>
+      <button class="btn btn-vinho btn-bloco" type="submit">Confirmar</button>
+      <p class="nota">Trocou ou perdeu o celular? Peça a um administrador para remover a verificação em <b>Usuários</b>.
+        <br><a href="/admin/login">Voltar</a></p>
+    </form>
+  </div>
+</div>
+{% endblock %}

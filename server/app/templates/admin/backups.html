@@ -1,0 +1,41 @@
+{% extends "admin/base.html" %}
+{% block titulo %}Backups{% endblock %}
+{% block conteudo %}
+<div class="adm-cab"><div>
+  <h1>Backups</h1>
+  <p class="lead">Todo dia, de madrugada, o servidor guarda uma cópia do <b>banco</b> (leads, eventos, usuários, histórico) e dos <b>PDFs e capas</b>. Ficam os últimos 14 dias.</p>
+</div></div>
+
+{% if not pasta_existe %}
+  <div class="alerta alerta-erro" role="alert">A pasta de backups não está montada neste servidor. Confira o serviço <code>ebooks_backup</code> no docker-compose (ver DEPLOY.md).</div>
+{% elif atrasado %}
+  <div class="alerta alerta-erro" role="alert"><b>Atenção:</b> {{ 'nenhum backup foi feito ainda' if not ultimo else 'o último backup tem mais de 36 horas (' ~ (ultimo|dtbr) ~ ')' }}.
+    Confira se o container <code>canella_ebooks_backup</code> está rodando: <code>docker logs canella_ebooks_backup --tail 30</code>.</div>
+{% else %}
+  <div class="alerta alerta-ok">Tudo em dia. Último backup: <b>{{ ultimo|dtbr }}</b>.</div>
+{% endif %}
+
+<div class="painel">
+  <div class="cab"><h2>Cópias guardadas ({{ itens|length }})</h2></div>
+  {% if itens %}
+  <div class="rolagem"><table class="tab">
+    <thead><tr><th>Quando</th><th>Conteúdo</th><th class="num">Tamanho</th><th></th></tr></thead>
+    <tbody>
+    {% for b in itens %}
+      <tr>
+        <td style="white-space:nowrap">{{ b.quando|dtbr }}</td>
+        <td>{{ b.tipo }}<br><span class="tab-sub"><code>{{ b.nome }}</code></span></td>
+        <td class="num">{{ b.tamanho|tamanho }}</td>
+        <td><a class="btn btn-linha btn-pq" href="/admin/backups/{{ b.nome }}">Baixar</a></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% else %}<div class="vazio-adm">Nenhuma cópia ainda.</div>{% endif %}
+</div>
+
+<div class="painel"><div class="bd">
+  <h2 style="font-size:19px;color:var(--vinho);margin-bottom:6px">Por que baixar de vez em quando?</h2>
+  <p class="dica" style="margin:0">Os backups ficam na própria VPS. Se a VPS inteira tiver um problema, eles vão junto. Uma vez por semana, baixe o arquivo mais recente do banco e dos PDFs e guarde no Drive da empresa. Como restaurar está no <code>DEPLOY.md</code>.</p>
+</div></div>
+{% endblock %}

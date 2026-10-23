@@ -23,3 +23,7 @@ Pillow
 qrcode
 
 python-dotenv
+
+# Verificação em duas etapas do painel (código de 6 dígitos do app
+# autenticador). A Libby já usa a mesma biblioteca.
+pyotp

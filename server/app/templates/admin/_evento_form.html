@@ -19,5 +19,8 @@
     <div class="campo"><label for="ev-val">QR vale até</label><input id="ev-val" name="valido_ate" type="date" min="{{ hoje.isoformat() }}">
       <small>Em branco: 30 dias depois do evento.</small></div>
   </div>
+  <label class="check"><input type="checkbox" name="para_estudantes" value="1">
+    <span><b>Evento para estudantes</b> (palestra em faculdade, semana acadêmica…): os participantes já ficam marcados como estudantes
+      e, se quiserem a biblioteca completa, o cadastro abre no formulário de estudante.</span></label>
   <button class="btn btn-vinho" type="submit">Criar evento e gerar QR code</button>
 </form>

@@ -9,14 +9,23 @@
 {%- endmacro %}
 
 {% block conteudo %}
+{% set estudante = f.perfil == 'estudante' %}
 <div class="pagina-form">
   <section class="pitch">
     {% if leitor %}
     <h1>Falta pouco para abrir a biblioteca inteira</h1>
     <p>Você já tem acesso aos ebooks do evento. Complete os dados abaixo e libere todos os outros materiais, sem custo.</p>
     {% else %}
-    <h1>Acesso gratuito à biblioteca completa</h1>
-    <p>Preencha seus dados uma única vez e leia online ou baixe todos os ebooks da Canella & Santos.</p>
+    <h1 id="pitch-tit">{{ 'Acesso gratuito para estudantes' if estudante else 'Acesso gratuito à biblioteca completa' }}</h1>
+    <p>Preencha seus dados uma única vez e leia online ou baixe todos os ebooks da Canella & Santos.
+      <span class="so-estudante"{% if not estudante %} hidden{% endif %}>Material prático para complementar a faculdade, sem custo.</span></p>
+    {% endif %}
+    {% if pedido %}
+    <div class="pedido">
+      {% if pedido.capa %}<img src="/capas/{{ pedido.capa }}" alt="" width="64" height="90">{% endif %}
+      <div><span>Você está liberando</span><b>{{ pedido.titulo }}</b>
+        <small>e, junto com ele, todos os outros ebooks da estante.</small></div>
+    </div>
     {% endif %}
     <ul>
       <li><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>
@@ -44,6 +53,12 @@
       <input type="hidden" name="next" value="{{ next }}">
       <div class="oculto" aria-hidden="true"><label>Site <input name="site" tabindex="-1" autocomplete="off"></label></div>
       {% if erros %}{% if not erros.entrar %}<div class="alerta alerta-erro">Confira os campos destacados.</div>{% endif %}{% endif %}
+      <fieldset class="perfil" aria-label="Seu perfil">
+        {% for k, rotulo in perfis.items() %}
+        <label class="perfil-op"><input type="radio" name="perfil" value="{{ k }}" {% if f.perfil == k %}checked{% endif %}>
+          <span>{% if k == 'estudante' %}🎓 {% else %}💼 {% endif %}{{ rotulo }}</span></label>
+        {% endfor %}
+      </fieldset>
       {{ campo('nome', 'Nome', extra='autocomplete="name" maxlength="120"') }}
       {{ campo('email', 'E-mail', 'email', extra='autocomplete="email" maxlength="160"') }}
       <div class="campo{% if erros.telefone %} tem-erro{% endif %}">
@@ -53,11 +68,26 @@
                  placeholder="(00) 00000-0000" autocomplete="tel-national" maxlength="16" required></div>
         {% if erros.telefone %}<div class="erro">{{ erros.telefone }}</div>{% endif %}
       </div>
-      <div class="duas">
-        {{ campo('empresa', 'Empresa', extra='autocomplete="organization" maxlength="160"') }}
-        {{ campo('cargo', 'Cargo', extra='autocomplete="organization-title" maxlength="120"') }}
+      <div class="grupo-perfil" data-perfil="profissional"{% if estudante %} hidden{% endif %}>
+        <div class="duas">
+          {{ campo('empresa', 'Empresa', extra='autocomplete="organization" maxlength="160"') }}
+          {{ campo('cargo', 'Cargo', extra='autocomplete="organization-title" maxlength="120"') }}
+        </div>
+        {{ campo('cnpj', 'CNPJ da empresa', obrig=False, extra='inputmode="numeric" placeholder="00.000.000/0000-00" maxlength="18"') }}
       </div>
-      {{ campo('cnpj', 'CNPJ da empresa', obrig=False, extra='inputmode="numeric" placeholder="00.000.000/0000-00" maxlength="18"') }}
+      <div class="grupo-perfil" data-perfil="estudante"{% if not estudante %} hidden{% endif %}>
+        {{ campo('instituicao', 'Faculdade / instituição de ensino', extra='maxlength="160" placeholder="Ex.: UFF, UniFOA, Estácio"') }}
+        <div class="duas">
+          {{ campo('curso', 'Curso', extra='maxlength="120" placeholder="Ex.: Ciências Contábeis"') }}
+          <div class="campo">
+            <label for="c-periodo">Período <span class="opc">(opcional)</span></label>
+            <select id="c-periodo" name="periodo">
+              <option value="">Selecione…</option>
+              {% for o in periodos %}<option {% if f.periodo == o %}selected{% endif %}>{{ o }}</option>{% endfor %}
+            </select>
+          </div>
+        </div>
+      </div>
       <div class="campo">
         <label for="c-conheceu">Como conheceu a Canella & Santos? <span class="opc">(opcional)</span></label>
         <select id="c-conheceu" name="como_conheceu">
@@ -68,8 +98,6 @@
       <label class="check"><input type="checkbox" name="consentimento" value="1" required {% if f.consentimento %}checked{% endif %}>
         <span>Concordo que a Canella & Santos armazene meus dados para liberar o acesso e entrar em contato, conforme a LGPD. *</span></label>
       {% if erros.consentimento %}<div class="alerta alerta-erro">{{ erros.consentimento }}</div>{% endif %}
-      <label class="check"><input type="checkbox" name="novidades" value="1" {% if f.novidades %}checked{% endif %}>
-        <span>Quero receber novos ebooks e conteúdos por e-mail/WhatsApp.</span></label>
       <button class="btn btn-ouro btn-bloco" type="submit">Liberar meu acesso</button>
       <p class="nota">Você pode pedir a exclusão dos seus dados a qualquer momento.</p>
     </form>
@@ -97,6 +125,17 @@
     abas.forEach(([t2,p2]) => { document.getElementById(t2).setAttribute('aria-selected', t2 === t); document.getElementById(p2).hidden = t2 !== t; });
   }));
 
+  // Perfil: troca os campos de empresa pelos de estudante (e vice-versa).
+  const radios = document.querySelectorAll('input[name=perfil]');
+  const aplicarPerfil = () => {
+    const atual = (document.querySelector('input[name=perfil]:checked') || {}).value || 'profissional';
+    document.querySelectorAll('.grupo-perfil').forEach(g => g.hidden = g.dataset.perfil !== atual);
+    document.querySelectorAll('.so-estudante').forEach(e => e.hidden = atual !== 'estudante');
+    const tit = document.getElementById('pitch-tit');
+    if (tit) tit.textContent = atual === 'estudante' ? 'Acesso gratuito para estudantes' : 'Acesso gratuito à biblioteca completa';
+  };
+  radios.forEach(r => r.addEventListener('change', aplicarPerfil));
+
   // máscaras
   const so = v => v.replace(/\D/g, '');
   const tel = document.getElementById('c-telefone');
@@ -107,7 +146,7 @@
              : d.length > 2 ? d.replace(/(\d{2})(\d{0,5})/, '($1) $2') : d;
   });
   const cnpj = document.getElementById('c-cnpj');
-  cnpj.addEventListener('input', () => {
+  if (cnpj) cnpj.addEventListener('input', () => {
     const d = so(cnpj.value).slice(0, 14);
     cnpj.value = d.replace(/^(\d{2})(\d)/, '$1.$2').replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
                   .replace(/\.(\d{3})(\d)/, '.$1/$2').replace(/(\d{4})(\d)/, '$1-$2');

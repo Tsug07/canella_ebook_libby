@@ -1,0 +1,2 @@
+# Scripts rodam em Linux (containers): quebra de linha LF mesmo vindo do Windows.
+*.sh text eol=lf

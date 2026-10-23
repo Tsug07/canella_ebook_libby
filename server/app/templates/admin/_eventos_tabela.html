@@ -10,6 +10,7 @@
     <div class="ev-info">
       <div class="ev-topo">
         <h3>{{ ev.nome }}</h3>
+        {% if ev.para_estudantes %}<span class="etq etq-estudante">🎓 Estudantes</span>{% endif %}
         {% if ev.visibilidade == 'oculto' %}<span class="etq etq-vinho" title="Mude a visibilidade do ebook para o QR voltar a abrir">Ebook oculto: QR não abre</span>
         {% elif not ev.ativo %}<span class="etq etq-off">Desativado</span>
         {% elif expirado %}<span class="etq etq-vinho">Expirou em {{ ev.valido_ate|dtbr }}</span>
@@ -17,9 +18,16 @@
       </div>
       <p class="ev-meta">
         {% if mostrar_ebook %}<b>{{ ev.ebook_titulo }}</b> · {% endif %}
-        {{ 'Evento em ' ~ (ev.data_evento|dtbr) if ev.data_evento else 'Sem data' }} ·
-        <b>{{ ev.participantes }}</b> participante{{ '' if ev.participantes == 1 else 's' }}
+        {{ 'Evento em ' ~ (ev.data_evento|dtbr) if ev.data_evento else 'Sem data' }}
       </p>
+      {% set vis = [ev.visitas or 0, ev.participantes]|max %}
+      <div class="funil" aria-label="Funil do evento">
+        <div><b>{{ vis }}</b><span>abriram o QR</span></div>
+        <i>→</i>
+        <div><b>{{ ev.participantes }}</b><span>pegaram o ebook{% if vis %} · {{ (100 * ev.participantes / vis)|round|int }}%{% endif %}</span></div>
+        <i>→</i>
+        <div class="funil-fim"><b>{{ ev.completaram }}</b><span>viraram lead completo{% if ev.participantes %} · {{ (100 * ev.completaram / ev.participantes)|round|int }}%{% endif %}</span></div>
+      </div>
       <div class="ev-link">
         <code>{{ link }}</code>
         <button type="button" class="link-btn" data-copiar="{{ link }}">Copiar link</button>

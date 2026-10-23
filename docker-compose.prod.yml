@@ -10,6 +10,25 @@ services:
       # PDFs e capas. Fora da imagem: cada deploy recria a imagem e levaria os
       # ebooks junto. O banco NAO esta aqui: e o PostgreSQL compartilhado da VPS.
       - ebooks_dados:/var/lib/ebooks
+      # Backups feitos pelo servico abaixo: o painel (/admin/backups) so LE.
+      - ebooks_backups:/var/lib/ebooks-backups:ro
+    networks:
+      - contask_network
+
+  # Backup diario (banco + PDFs). Imagem do Postgres porque ja traz o pg_dump.
+  # O numero (16) tem que ser IGUAL ou MAIOR que a versao do Postgres da VPS:
+  #   docker exec task_manager-postgres-1 postgres --version
+  # Se la for 17, troque aqui para postgres:17-alpine.
+  ebooks_backup:
+    image: postgres:16-alpine
+    container_name: canella_ebooks_backup
+    restart: unless-stopped
+    env_file: .env.production
+    entrypoint: ["sh", "/backup.sh"]
+    volumes:
+      - ./backup/backup.sh:/backup.sh:ro
+      - ebooks_dados:/dados:ro
+      - ebooks_backups:/backups
     networks:
       - contask_network
 
@@ -19,3 +38,4 @@ networks:
 
 volumes:
   ebooks_dados:
+  ebooks_backups:

@@ -102,7 +102,7 @@ h1,h2,h3{font-family:var(--f-titulo);font-weight:600;letter-spacing:.3px;line-he
 .livro:hover,.livro:focus-visible{transform:translateY(-10px) rotate(-1.2deg)}
 .livro:focus-visible{outline:none}
 .livro:focus-visible .capa{outline:3px solid var(--dourado);outline-offset:3px}
-.capa{position:relative;border-radius:2px 5px 5px 2px;overflow:hidden;background:#ddd;
+.capa{display:block;position:relative;border-radius:2px 5px 5px 2px;overflow:hidden;background:#ddd;
       box-shadow:6px 6px 14px rgba(0,0,0,.55), 1px 0 0 rgba(255,255,255,.08)}
 .capa img{width:150px;height:auto;max-height:240px;object-fit:cover}
 .capa::before{ /* lombada */
@@ -374,4 +374,182 @@ details.painel:not([open]) > summary{border-bottom:0}
   .ed-capa{max-width:150px}
   .ev-cartao{flex-direction:column}
   .ev-sep{display:none}
+}
+
+/* ======================= v3: destaques, página do ebook, arquivo, campanhas ======================= */
+/* destaques no topo da estante */
+.destaques{max-width:1200px;margin:0 auto 34px;padding:0 20px}
+.destaques-tit{font:500 13px/1 var(--f-titulo);letter-spacing:3px;text-transform:uppercase;color:var(--rose);margin-bottom:12px}
+.destaques-lista{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.destaque{display:flex;gap:16px;align-items:center;text-align:left;background:#fff;border:1px solid var(--borda);border-left:4px solid var(--dourado);
+  border-radius:12px;padding:14px;cursor:pointer;box-shadow:var(--sombra);transition:transform .2s, box-shadow .2s}
+.destaque:hover{transform:translateY(-3px);box-shadow:0 16px 34px -14px rgba(60,20,25,.45)}
+.destaque:focus-visible{outline:3px solid var(--dourado);outline-offset:2px}
+.destaque .capa{flex:0 0 auto}
+.destaque .capa img{width:92px;max-height:132px}
+.destaque .capa .sem-capa{width:92px;height:130px;font-size:13px}
+.destaque-txt{display:flex;flex-direction:column;gap:3px;min-width:0}
+.destaque-cat{font:500 11.5px/1 var(--f-titulo);letter-spacing:2px;text-transform:uppercase;color:var(--rose)}
+.destaque-txt b{font:600 19px/1.2 var(--f-titulo);color:var(--vinho)}
+.destaque-sub{font-size:14px;color:var(--texto-suave);line-height:1.35}
+.destaque-cta{margin-top:6px;font-weight:600;font-size:14px;color:var(--vinho)}
+.selo-novo{align-self:flex-start;background:var(--vinho);color:var(--dourado);font:600 10.5px/1 var(--f-titulo);letter-spacing:1.5px;
+  text-transform:uppercase;padding:4px 8px;border-radius:999px;margin-bottom:2px}
+/* fita "Novo" na capa */
+.fita-novo{position:absolute;z-index:2;top:12px;left:-30px;transform:rotate(-45deg);width:110px;text-align:center;
+  background:var(--dourado);color:#3a1a12;font:600 10.5px/1 var(--f-titulo);letter-spacing:1.5px;text-transform:uppercase;
+  padding:5px 0;box-shadow:0 2px 4px rgba(0,0,0,.4)}
+.ficha-rodape{display:flex;gap:14px;margin-top:16px;padding-top:12px;border-top:1px solid var(--borda)}
+.ficha-rodape[hidden]{display:none}
+
+/* página própria do ebook */
+.pg-ebook{max-width:1000px;margin:0 auto;padding:26px 20px 70px}
+.migalha-pub{margin:0 0 18px;font-size:14.5px;color:var(--texto-suave)}
+.pg-ebook-corpo{display:grid;grid-template-columns:300px 1fr;gap:44px;align-items:start}
+.pg-capa img{width:300px;max-height:none}
+.pg-capa .sem-capa{width:300px;height:420px;font-size:26px}
+.pg-info .cat{font:500 12px/1 var(--f-titulo);letter-spacing:2.5px;text-transform:uppercase;color:var(--rose)}
+.pg-info h1{font-size:clamp(30px,4vw,42px);color:var(--vinho);margin:10px 0 8px}
+.pg-info .sub{font-size:18px;color:var(--texto-suave);margin:0 0 16px}
+.pg-info .desc{white-space:pre-line;margin:0 0 14px}
+.pg-info .meta{font-size:14px;color:var(--texto-suave);margin:0 0 22px}
+.pg-info .acoes{display:flex;gap:10px;flex-wrap:wrap}
+.pg-cta{background:#fff;border:1px solid var(--borda);border-left:4px solid var(--dourado);border-radius:12px;padding:18px 20px;margin-bottom:14px}
+.pg-cta b{display:block;font:600 19px var(--f-titulo);color:var(--vinho)}
+.pg-cta > span{display:block;color:var(--texto-suave);font-size:14.5px;margin:2px 0 14px}
+.compartilhar{margin-top:10px;padding-left:0}
+.pg-outros{margin-top:60px}
+.pg-outros h2{font-size:22px;color:var(--vinho);margin-bottom:16px}
+.pg-outros-lista{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:22px}
+.pg-outro{text-decoration:none;color:var(--texto);display:flex;flex-direction:column;gap:8px}
+.pg-outro .capa img{width:100%;max-height:none}
+.pg-outro .capa .sem-capa{width:100%;height:190px}
+.pg-outro-tit{font-weight:600;font-size:14.5px;line-height:1.3}
+.pg-outro:hover .pg-outro-tit{color:var(--vinho);text-decoration:underline}
+
+/* acesso: ebook pedido */
+.pedido{display:flex;gap:14px;align-items:center;background:#fff;border:1px solid var(--borda);border-radius:12px;padding:12px 14px;margin:18px 0 6px}
+.pedido img{width:56px;height:auto;border-radius:2px 4px 4px 2px;box-shadow:2px 2px 6px rgba(0,0,0,.3)}
+.pedido span{display:block;font:500 11.5px/1 var(--f-titulo);letter-spacing:2px;text-transform:uppercase;color:var(--rose)}
+.pedido b{display:block;font:600 18px/1.25 var(--f-titulo);color:var(--vinho);margin:4px 0 2px}
+.pedido small{color:var(--texto-suave);font-size:13.5px}
+
+/* painel: abas, arquivo, divulgar, funil, canais */
+.abas-adm{display:flex;gap:4px}
+.abas-adm a{padding:7px 14px;border-radius:999px;text-decoration:none;color:var(--texto-suave);font-weight:600;font-size:14.5px}
+.abas-adm a:hover{background:var(--creme)}
+.abas-adm a.ativo{background:var(--vinho);color:#fff}
+.etq-vis-arquivado{background:#ece6e6;color:#5b4b4d}
+.faixa-arquivo{border-left:4px solid var(--rose);background:#fbf7f7}
+.faixa-arquivo .bd{display:flex;gap:20px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.faixa-arquivo h2{font-size:19px;color:var(--vinho);margin-bottom:4px}
+.faixa-arquivo p{margin:0;color:var(--texto-suave);font-size:14.5px}
+.links-canal{display:grid;gap:8px}
+.link-canal{display:flex;align-items:center;gap:10px;flex-wrap:wrap;border:1px solid var(--borda);border-radius:10px;padding:8px 10px}
+.link-canal-nome{font-weight:600;min-width:90px}
+.link-canal code{flex:1;min-width:0;font:13px ui-monospace,Consolas,monospace;background:var(--creme);padding:5px 8px;border-radius:6px;word-break:break-all}
+.funil{display:flex;align-items:stretch;gap:6px;flex-wrap:wrap;margin:2px 0 10px}
+.funil div{background:var(--creme);border-radius:8px;padding:6px 10px;min-width:110px}
+.funil div b{display:block;font:600 19px/1.1 var(--f-titulo);color:var(--vinho)}
+.funil div span{font-size:12.5px;color:var(--texto-suave)}
+.funil .funil-fim{background:#f6ecd9}
+.funil i{font-style:normal;color:var(--rose);align-self:center}
+.canais{display:grid;gap:6px}
+.canal{display:grid;grid-template-columns:150px 1fr 150px;gap:12px;align-items:center;text-decoration:none;color:var(--texto);
+  padding:6px 8px;border-radius:8px}
+.canal:hover,.canal.ativo{background:var(--creme)}
+.canal-nome{font-weight:600}
+.canal-barra{height:10px;background:#f1eaea;border-radius:999px;overflow:hidden}
+.canal-barra i{display:block;height:100%;background:linear-gradient(90deg,var(--vinho),var(--rose))}
+.canal-num{font-size:13.5px;color:var(--texto-suave);text-align:right}
+.confirmado{display:inline-block;margin-left:6px;font-size:11.5px;color:var(--ok);font-weight:600}
+@media (max-width:760px){
+  .pg-ebook-corpo{grid-template-columns:1fr;gap:24px}
+  .pg-capa{max-width:220px;margin:0 auto}
+  .pg-capa img{width:100%}
+  .canal{grid-template-columns:110px 1fr;}
+  .canal-num{grid-column:1/-1;text-align:left}
+}
+.destaques-pontos{display:none}
+@media (max-width:560px){
+  /* Celular: os destaques viram um carrossel de deslizar, com pontos. */
+  .destaques{padding:0 16px}
+  .destaques-lista{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;margin:0 -16px;
+    padding:4px 16px 14px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .destaques-lista::-webkit-scrollbar{display:none}
+  .destaque{flex:0 0 86%;scroll-snap-align:center}
+  .destaque:hover{transform:none}
+  .destaques-pontos{display:flex;justify-content:center;gap:8px;margin-top:2px}
+  .destaques-pontos button{width:8px;height:8px;padding:0;border:0;border-radius:999px;background:#d9c9c9;cursor:pointer;
+    transition:width .25s, background .25s}
+  .destaques-pontos button[aria-current=true]{width:22px;background:var(--vinho)}
+}
+
+/* ======================= v4: equipe, login, backups ======================= */
+.login-caixa{max-width:400px;margin:56px auto;padding:0 16px}
+.login-logo{background:var(--vinho);border-radius:14px 14px 0 0;padding:22px;text-align:center}
+.login-logo img{margin:0 auto;height:56px;width:auto}
+.campo-codigo{font:600 24px/1 ui-monospace,Consolas,monospace!important;letter-spacing:8px;text-align:center}
+.adm-topo .dir{align-items:center}
+.adm-topo .dir a.eu{background:rgba(255,255,255,.12);padding:6px 12px;border-radius:999px;text-decoration:none;opacity:1;font-weight:600}
+.adm-topo .dir a.eu.ativo{background:var(--dourado);color:var(--preto)}
+.ponto-alerta{display:inline-block;width:8px;height:8px;border-radius:50%;background:#f0b429;margin-left:3px;vertical-align:middle}
+.linha-form{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+.linha-form .campo input{min-width:220px}
+.config-2fa{display:grid;grid-template-columns:200px 1fr;gap:24px;align-items:start}
+.qr-2fa{background:#fff;border:1px solid var(--borda);border-radius:12px;padding:10px}
+.qr-2fa svg{width:100%;height:auto;display:block}
+.passos{margin:0 0 16px;padding-left:20px}
+.passos li{margin-bottom:8px}
+.chave-2fa{font:13px ui-monospace,Consolas,monospace;background:var(--creme);padding:2px 6px;border-radius:4px;word-break:break-all}
+.entrega-senha{border:2px solid var(--dourado);background:#fffaf0}
+.entrega-senha h2{font-size:19px;color:var(--vinho);margin-bottom:6px}
+.entrega-dados{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:12px 0 14px}
+.entrega-dados div{background:#fff;border:1px solid var(--borda);border-radius:8px;padding:8px 12px}
+.entrega-dados span{display:block;font-size:12px;color:var(--texto-suave);text-transform:uppercase;letter-spacing:.6px}
+.entrega-dados code{font:15px ui-monospace,Consolas,monospace;word-break:break-all}
+.senha-temp{font-weight:700!important;color:var(--vinho)}
+.inline{display:inline;margin:0}
+.tab select{font:14px var(--f-texto);padding:5px 8px;border:1px solid var(--borda);border-radius:6px;background:#fff}
+.linha-off td{opacity:.55}
+.linha-alerta td{background:#fdf3f2}
+@media (max-width:640px){.config-2fa{grid-template-columns:1fr}.qr-2fa{max-width:220px}}
+
+.senha-campo{position:relative}
+.senha-campo input{padding-right:84px}
+.ver-senha{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:var(--creme);color:var(--vinho);
+  font:600 13px var(--f-texto);padding:6px 10px;border-radius:6px;cursor:pointer}
+
+/* ======================= v5: estudantes e WhatsApp ======================= */
+.perfil{border:0;padding:0;margin:0 0 16px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.perfil-op{display:block;cursor:pointer}
+.perfil-op input{position:absolute;opacity:0;pointer-events:none}
+.perfil-op span{display:block;text-align:center;padding:11px 8px;border:1.5px solid var(--borda);border-radius:10px;font-weight:600;
+  font-size:14.5px;color:var(--texto-suave);transition:all .15s;background:#fff}
+.perfil-op input:checked + span{border-color:var(--vinho);background:#fbf4f5;color:var(--vinho);box-shadow:0 0 0 3px rgba(108,31,46,.08)}
+.perfil-op input:focus-visible + span{outline:3px solid var(--dourado);outline-offset:2px}
+.grupo-perfil[hidden]{display:none}
+.hero-ctas{display:flex;flex-direction:column;align-items:center;gap:10px}
+.link-estudante{color:var(--vinho);font-weight:600;font-size:14.5px;text-decoration:underline;text-underline-offset:3px}
+.acoes .link-estudante{align-self:center;margin-left:4px}
+.pg-cta .link-estudante{display:inline-block;margin-top:12px}
+.etq-estudante{background:#e8eefb;color:#2b4a8b}
+.resumo-link{text-decoration:none;color:inherit;display:block}
+.paginacao{display:flex;gap:10px;align-items:center;justify-content:flex-end;padding:14px 20px;border-top:1px solid var(--borda);
+  font-size:14px;color:var(--texto-suave)}
+.paginacao span{margin-right:auto}
+
+/* botão flutuante do WhatsApp */
+.wa-flutuante{position:fixed;right:20px;bottom:20px;z-index:40;display:flex;align-items:center;gap:8px;
+  background:#25D366;color:#fff;text-decoration:none;font-weight:600;font-size:15px;
+  padding:12px 18px 12px 14px;border-radius:999px;box-shadow:0 10px 24px -6px rgba(0,0,0,.35);transition:transform .2s, box-shadow .2s}
+.wa-flutuante:hover{transform:translateY(-2px);box-shadow:0 14px 28px -6px rgba(0,0,0,.4)}
+.wa-flutuante:focus-visible{outline:3px solid var(--dourado);outline-offset:3px}
+.wa-flutuante svg{width:26px;height:26px;fill:#fff;flex:0 0 auto}
+.rodape-wa{color:#7fe3a6}
+@media (max-width:560px){
+  .wa-flutuante{right:14px;bottom:14px;padding:13px}
+  .wa-flutuante span{display:none}
+  .hero-ctas{align-items:flex-start}
+  .toast{bottom:84px}
 }

@@ -30,6 +30,8 @@
           <small>Números menores ficam mais à esquerda.</small></div>
         <div class="larga">{% with visibilidades=visibilidades, atual=f.visibilidade or 'publicado' %}{% include "admin/_visibilidade.html" %}{% endwith %}</div>
       </div>
+      <label class="check"><input type="checkbox" name="destaque" value="1" {% if f.destaque %}checked{% endif %}>
+        <span><b>Destacar no topo da estante</b> (até 3 ebooks aparecem em "Em destaque").</span></label>
       <button class="btn btn-vinho" type="submit">Salvar ebook</button>
     </form>
   </div>
@@ -37,11 +39,17 @@
 <datalist id="cats">{% for c in categorias %}<option value="{{ c }}">{% endfor %}</datalist>
 
 <div class="painel">
-  <div class="cab"><h2>Seus ebooks ({{ ebooks|length }})</h2></div>
+  <div class="cab">
+    <nav class="abas-adm" aria-label="Filtrar ebooks">
+      <a href="/admin/ebooks" class="{{ 'ativo' if not ver_arquivados }}">Em uso</a>
+      <a href="/admin/ebooks?ver=arquivados" class="{{ 'ativo' if ver_arquivados }}">Arquivados ({{ n_arquivados }})</a>
+    </nav>
+  </div>
+  {% if ver_arquivados %}<p class="dica" style="padding:14px 20px 0;margin:0">Arquivados saíram da estante e os links antigos avisam que o material foi atualizado. Os leads e o histórico continuam aqui; abra um para restaurar.</p>{% endif %}
   {% if ebooks %}
   <div class="rolagem"><table class="tab">
-    <thead><tr><th></th><th>Título</th><th>Prateleira</th><th>Visibilidade</th>
-      <th class="num">Leituras</th><th class="num">Downloads</th><th>Eventos</th><th></th></tr></thead>
+    <thead><tr><th></th><th>Título</th><th>Prateleira</th><th>{{ 'Arquivado' if ver_arquivados else 'Visibilidade' }}</th>
+      <th class="num">Leads</th><th class="num">Leituras</th><th class="num">Downloads</th><th>Eventos</th><th></th></tr></thead>
     <tbody>
     {% for e in ebooks %}
       <tr>
@@ -50,7 +58,12 @@
           {% if e.subtitulo %}<br><span class="tab-sub">{{ e.subtitulo }}</span>{% endif %}
           <br><span class="tab-sub">{{ e.paginas or '?' }} páginas</span></td>
         <td>{{ e.categoria or '—' }}</td>
-        <td><span class="etq etq-vis-{{ e.visibilidade }}">{{ visibilidades[e.visibilidade][0] }}</span></td>
+        <td>{% if ver_arquivados %}<span class="tab-sub">{{ e.arquivado_em|dtbr }}</span>
+              {% if e.motivo_arquivo %}<br><span class="tab-sub">{{ e.motivo_arquivo }}</span>{% endif %}
+              {% if e.substituto_titulo %}<br><span class="tab-sub">→ {{ e.substituto_titulo }}</span>{% endif %}
+            {% else %}<span class="etq etq-vis-{{ e.visibilidade }}">{{ rotulos[e.visibilidade][0] }}</span>
+              {% if e.destaque %}<span class="etq etq-ouro" title="Aparece em Em destaque">★ Destaque</span>{% endif %}{% endif %}</td>
+        <td class="num" title="Leads que se cadastraram pedindo este ebook">{{ e.leads }}</td>
         <td class="num">{{ e.leituras }}</td>
         <td class="num">{{ e.downloads }}</td>
         <td>{% if e.eventos %}<a href="/admin/ebooks/{{ e.id }}#eventos">{{ e.eventos }} evento{{ '' if e.eventos == 1 else 's' }}</a>
@@ -63,7 +76,7 @@
     {% endfor %}
     </tbody>
   </table></div>
-  {% else %}<div class="vazio-adm">Nenhum ebook ainda. Use o formulário acima para adicionar o primeiro.</div>{% endif %}
+  {% else %}<div class="vazio-adm">{{ 'Nenhum ebook arquivado.' if ver_arquivados else 'Nenhum ebook ainda. Use o formulário acima para adicionar o primeiro.' }}</div>{% endif %}
 </div>
 {% endblock %}
 {% block scripts %}

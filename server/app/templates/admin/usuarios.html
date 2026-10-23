@@ -1,0 +1,85 @@
+{% extends "admin/base.html" %}
+{% block titulo %}Usuários{% endblock %}
+{% block conteudo %}
+<div class="adm-cab"><div>
+  <h1>Usuários do painel</h1>
+  <p class="lead">Cada pessoa da equipe com o próprio login. Assim dá para saber quem fez o quê (veja em <a href="/admin/atividade">Atividade</a>) e tirar o acesso de quem sair da empresa sem trocar a senha de todo mundo.</p>
+</div></div>
+
+{% if entregar %}
+<div class="painel entrega-senha" role="alert">
+  <div class="bd">
+    <h2>{{ 'Usuário criado' if entregar.novo else 'Senha redefinida' }}: envie estes dados para {{ entregar.nome }}</h2>
+    <p class="dica">A senha temporária aparece <b>só agora</b>. No primeiro acesso a pessoa cria a senha dela. Mande por um canal privado (WhatsApp direto, por exemplo), nunca em grupo.</p>
+    <div class="entrega-dados">
+      <div><span>Endereço</span><code>{{ url_base }}/admin</code></div>
+      <div><span>Usuário</span><code>{{ entregar.usuario }}</code></div>
+      <div><span>Senha temporária</span><code class="senha-temp">{{ entregar.senha }}</code></div>
+    </div>
+    <button type="button" class="btn btn-ouro btn-pq" data-copiar="Acesso ao painel da Biblioteca Canella & Santos&#10;Endereço: {{ url_base }}/admin&#10;Usuário: {{ entregar.usuario }}&#10;Senha temporária: {{ entregar.senha }}&#10;(no primeiro acesso você cria a sua senha)">Copiar mensagem pronta</button>
+  </div>
+</div>
+{% endif %}
+
+<div class="painel">
+  <div class="cab"><h2>Equipe ({{ usuarios|length }})</h2></div>
+  <div class="rolagem"><table class="tab">
+    <thead><tr><th>Pessoa</th><th>Papel</th><th>Duas etapas</th><th>Último acesso</th><th>Situação</th><th></th></tr></thead>
+    <tbody>
+    {% for u in usuarios %}
+      <tr{% if not u.ativo %} class="linha-off"{% endif %}>
+        <td><b>{{ u.nome }}</b>{% if u.id == eu.id %} <span class="tab-sub">(você)</span>{% endif %}<br><span class="tab-sub">@{{ u.usuario }}{% if u.email %} · {{ u.email }}{% endif %}</span></td>
+        <td>
+          <form method="post" action="/admin/usuarios/{{ u.id }}/papel" class="inline">
+            <select name="papel" onchange="this.form.submit()" aria-label="Papel de {{ u.nome }}" {% if u.id == eu.id %}disabled title="Peça a outro administrador para mudar o seu papel"{% endif %}>
+              {% for k, (rotulo, _) in papeis.items() %}<option value="{{ k }}" {% if u.papel == k %}selected{% endif %}>{{ rotulo }}</option>{% endfor %}
+            </select>
+          </form>
+        </td>
+        <td>{% if u.totp_segredo %}<span class="etq etq-ok">Ativada</span>{% else %}<span class="etq etq-off">Não</span>{% endif %}</td>
+        <td class="tab-sub">{{ u.ultimo_login|dtbr if u.ultimo_login else ('aguardando 1º acesso' if u.trocar_senha else '—') }}</td>
+        <td>{% if not u.ativo %}<span class="etq etq-off">Desativado</span>{% elif u.trocar_senha %}<span class="etq etq-ouro">Senha temporária</span>{% else %}<span class="etq etq-ok">Ativo</span>{% endif %}</td>
+        <td><div class="acoes-linha">
+          {% if u.id != eu.id %}
+          <form method="post" action="/admin/usuarios/{{ u.id }}/senha" data-msg="Gerar uma senha temporária nova para {{ u.nome }}? A senha atual deixa de funcionar e a pessoa é desconectada." onsubmit="return confirm(this.dataset.msg)">
+            <button class="link-btn" type="submit">Redefinir senha</button></form>
+          {% if u.totp_segredo %}
+          <form method="post" action="/admin/usuarios/{{ u.id }}/2fa" data-msg="Remover a verificação em duas etapas de {{ u.nome }}? Use quando a pessoa perdeu ou trocou o celular." onsubmit="return confirm(this.dataset.msg)">
+            <button class="link-btn" type="submit">Remover 2 etapas</button></form>
+          {% endif %}
+          <form method="post" action="/admin/usuarios/{{ u.id }}/ativo" data-msg="{{ ('Desativar ' ~ u.nome ~ '? O acesso cai na hora. O histórico de atividade continua.') if u.ativo else ('Reativar ' ~ u.nome ~ '?') }}" onsubmit="return confirm(this.dataset.msg)">
+            <button class="link-btn{{ ' perigo' if u.ativo }}" type="submit">{{ 'Desativar' if u.ativo else 'Reativar' }}</button></form>
+          {% else %}<a class="link-btn" href="/admin/conta">Minha conta</a>{% endif %}
+        </div></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+</div>
+
+<div class="painel">
+  <div class="cab"><h2>Adicionar pessoa</h2></div>
+  <div class="bd">
+    {% if erro %}<div class="alerta alerta-erro" role="alert">{{ erro }}</div>{% endif %}
+    <form method="post" action="/admin/usuarios" data-enviando="Criando…">
+      <div class="grade-form">
+        <div class="campo"><label for="u-nome">Nome</label><input id="u-nome" name="nome" value="{{ f.nome or '' }}" required maxlength="120"></div>
+        <div class="campo"><label for="u-usuario">Usuário (para entrar)</label>
+          <input id="u-usuario" name="usuario" value="{{ f.usuario or '' }}" required maxlength="30" autocapitalize="none" spellcheck="false"
+                 placeholder="ex.: mariana.lima" data-sugere-de="u-nome">
+          <small>Sugerido a partir do nome. Minúsculas, sem espaço nem acento.</small></div>
+        <div class="campo"><label for="u-email">E-mail <span class="opc">(opcional)</span></label><input id="u-email" name="email" type="email" value="{{ f.email or '' }}" maxlength="160"></div>
+      </div>
+      {% set papel_sel = f.papel or 'equipe' %}
+      <fieldset class="vis-opcoes">
+        <legend>Papel</legend>
+        {% for k, (rotulo, explica) in papeis.items() %}
+        <label class="vis-opcao"><input type="radio" name="papel" value="{{ k }}" {% if papel_sel == k %}checked{% endif %}>
+          <span><b>{{ rotulo }}</b><small>{{ explica }}</small></span></label>
+        {% endfor %}
+      </fieldset>
+      <button class="btn btn-vinho" type="submit">Criar e gerar senha temporária</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

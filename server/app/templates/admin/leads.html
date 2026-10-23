@@ -9,37 +9,63 @@
   <div><b>{{ resumo.completos }}</b><span>com biblioteca completa</span></div>
   <div><b>{{ resumo.so_evento }}</b><span>só ebook de evento</span></div>
   <div><b>{{ resumo.semana }}</b><span>novos nos últimos 7 dias</span></div>
+  <div><a href="?tipo=estudante" class="resumo-link"><b>{{ resumo.estudantes }}</b><span>🎓 estudantes</span></a></div>
 </div>
+
+{% if canais %}
+<div class="painel">
+  <div class="cab"><h2>De onde vêm os leads</h2>
+    <span class="dica" style="margin:0">Use os links de campanha (tela do ebook) para medir cada canal.</span></div>
+  <div class="bd canais">
+    {% set maior = canais[0].n %}
+    {% for c in canais %}
+    <a class="canal{% if canal == c.canal %} ativo{% endif %}" href="?canal={{ c.canal|urlencode }}" title="Filtrar por {{ c.canal }}">
+      <span class="canal-nome">{{ c.canal }}</span>
+      <span class="canal-barra"><i style="width:{{ (100 * c.n / maior)|round|int }}%"></i></span>
+      <span class="canal-num"><b>{{ c.n }}</b> · {{ c.completos }} completo{{ '' if c.completos == 1 else 's' }}</span>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
 
 <div class="painel">
   <div class="cab">
     <form class="filtros" method="get">
-      <input name="busca" value="{{ busca }}" placeholder="Buscar nome, e-mail ou empresa" aria-label="Buscar">
+      {% if canal %}<input type="hidden" name="canal" value="{{ canal }}"><a class="etq etq-ouro" href="/admin/leads" title="Tirar filtro">Canal: {{ canal }} ✕</a>{% endif %}
+      <input name="busca" value="{{ busca }}" placeholder="Buscar nome, e-mail, empresa ou faculdade" aria-label="Buscar">
       <select name="tipo" aria-label="Tipo de acesso" onchange="this.form.submit()">
         <option value="">Todos</option>
         <option value="completo" {% if tipo == 'completo' %}selected{% endif %}>Biblioteca completa</option>
         <option value="evento" {% if tipo == 'evento' %}selected{% endif %}>Só evento</option>
+        <option value="estudante" {% if tipo == 'estudante' %}selected{% endif %}>🎓 Estudantes</option>
+        <option value="profissional" {% if tipo == 'profissional' %}selected{% endif %}>💼 Profissionais / empresas</option>
       </select>
       <button class="btn btn-linha btn-pq" type="submit">Filtrar</button>
     </form>
-    <a class="btn btn-ouro btn-pq" href="/admin/leads.csv?busca={{ busca|urlencode }}&tipo={{ tipo|urlencode }}">Exportar planilha (CSV)</a>
+    <a class="btn btn-ouro btn-pq" href="/admin/leads.csv?busca={{ busca|urlencode }}&tipo={{ tipo|urlencode }}&canal={{ canal|urlencode }}">Exportar planilha (CSV)</a>
   </div>
   {% if leads %}
   <div class="rolagem"><table class="tab">
-    <thead><tr><th>Contato</th><th>Empresa / cargo</th><th>Telefone</th><th>Acesso</th><th>Origem</th>
+    <thead><tr><th>Contato</th><th>Empresa ou instituição</th><th>Telefone</th><th>Acesso</th><th>Canal / pedido</th>
       <th class="num">Leituras</th><th class="num">Downloads</th><th>Cadastro</th><th></th></tr></thead>
     <tbody>
     {% for p in leads %}
       <tr>
-        <td><b>{{ p.nome }}</b><br><a href="mailto:{{ p.email }}" style="font-size:13.5px">{{ p.email }}</a></td>
-        <td>{{ p.empresa or '—' }}{% if p.cargo %}<br><span style="font-size:13px;color:var(--texto-suave)">{{ p.cargo }}</span>{% endif %}
-            {% if p.cnpj %}<br><span style="font-size:12.5px;color:var(--texto-suave)">CNPJ {{ p.cnpj|cnpj }}</span>{% endif %}</td>
+        <td><b>{{ p.nome }}</b><br><a href="mailto:{{ p.email }}" style="font-size:13.5px">{{ p.email }}</a>
+            {% if p.email_confirmado_em %}<span class="confirmado" title="Clicou no link do e-mail em {{ p.email_confirmado_em|dtbr }}">✓ confirmado</span>{% endif %}</td>
+        <td>{% if p.perfil == 'estudante' %}<span class="etq etq-estudante">🎓 Estudante</span>
+              {% if p.instituicao %}<br>{{ p.instituicao }}{% endif %}
+              {% if p.curso %}<br><span style="font-size:13px;color:var(--texto-suave)">{{ p.curso }}{% if p.periodo %} · {{ p.periodo }}{% endif %}</span>{% endif %}
+            {% else %}{{ p.empresa or '—' }}{% if p.cargo %}<br><span style="font-size:13px;color:var(--texto-suave)">{{ p.cargo }}</span>{% endif %}
+            {% if p.cnpj %}<br><span style="font-size:12.5px;color:var(--texto-suave)">CNPJ {{ p.cnpj|cnpj }}</span>{% endif %}{% endif %}</td>
         <td>{% if p.telefone %}{% set dig = p.telefone|replace('(','')|replace(')','')|replace(' ','')|replace('-','') %}
               <a href="https://wa.me/55{{ dig }}" target="_blank" rel="noopener">{{ p.telefone }}</a>{% else %}—{% endif %}</td>
         <td>{% if p.acesso_completo %}<span class="etq etq-ok">Completo</span>{% else %}<span class="etq etq-ouro">Só evento</span>{% endif %}
             {% if p.aceita_novidades %}<br><span style="font-size:12px;color:var(--ok)">✓ aceita novidades</span>{% endif %}</td>
-        <td style="font-size:13.5px">{{ p.origem or '—' }}{% if p.eventos %}<br><span style="color:var(--texto-suave)">Eventos: {{ p.eventos }}</span>{% endif %}
-            {% if p.como_conheceu %}<br><span style="color:var(--texto-suave)">Conheceu: {{ p.como_conheceu }}</span>{% endif %}</td>
+        <td style="font-size:13.5px"><b>{{ p.canal }}</b>{% if p.campanha_nome %} · {{ p.campanha_nome }}{% endif %}
+            {% if p.ebook_pedido %}<br><span style="color:var(--texto-suave)">Pediu: {{ p.ebook_pedido }}</span>{% endif %}
+            {% if p.eventos %}<br><span style="color:var(--texto-suave)">Eventos: {{ p.eventos }}</span>{% endif %}</td>
         <td class="num">{{ p.leituras }}</td>
         <td class="num">{{ p.downloads }}</td>
         <td style="font-size:13.5px;white-space:nowrap">{{ p.criado_em|dtbr }}</td>
@@ -51,6 +77,14 @@
     {% endfor %}
     </tbody>
   </table></div>
+  {% if paginas > 1 %}
+  {% set qs = 'busca=' ~ (busca|urlencode) ~ '&tipo=' ~ (tipo|urlencode) ~ '&canal=' ~ (canal|urlencode) %}
+  <nav class="paginacao" aria-label="Páginas">
+    <span>{{ (pagina - 1) * por_pagina + 1 }}–{{ [pagina * por_pagina, total]|min }} de {{ total }}</span>
+    {% if pagina > 1 %}<a class="btn btn-linha btn-pq" href="?{{ qs }}&pagina={{ pagina - 1 }}">← Anteriores</a>{% endif %}
+    {% if pagina < paginas %}<a class="btn btn-linha btn-pq" href="?{{ qs }}&pagina={{ pagina + 1 }}">Próximos →</a>{% endif %}
+  </nav>
+  {% endif %}
   {% else %}<div class="vazio-adm">Nenhum contato {% if busca or tipo %}com esse filtro{% else %}ainda{% endif %}.</div>{% endif %}
 </div>
 {% endblock %}

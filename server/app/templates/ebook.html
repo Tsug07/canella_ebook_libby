@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block titulo %}{{ ebook.titulo }}{% endblock %}
+{% block meta %}
+{% set desc = ebook.subtitulo or (ebook.descricao or '')[:180] or 'Ebook gratuito da Canella & Santos Contabilidade Consultiva.' %}
+<meta name="description" content="{{ desc }}">
+<meta property="og:type" content="book">
+<meta property="og:site_name" content="Biblioteca Canella & Santos">
+<meta property="og:title" content="{{ ebook.titulo }} — ebook gratuito">
+<meta property="og:description" content="{{ desc }}">
+{% if ebook.capa %}<meta property="og:image" content="{{ url_base }}/capas/{{ ebook.capa }}">
+{% else %}<meta property="og:image" content="{{ url_base }}/static/img/og-biblioteca.jpg">{% endif %}
+<meta property="og:url" content="{{ url_base }}/ebook/{{ ebook.slug }}">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="{{ url_base }}/ebook/{{ ebook.slug }}">
+{% endblock %}
+
+{% block conteudo %}
+<div class="pg-ebook">
+  <p class="migalha-pub"><a href="/">← Biblioteca</a>{% if ebook.categoria %} · {{ ebook.categoria }}{% endif %}</p>
+  <article class="pg-ebook-corpo">
+    <div class="capa pg-capa">
+      {% if ebook.capa %}<img src="/capas/{{ ebook.capa }}" alt="Capa de {{ ebook.titulo }}" width="300" height="424">
+      {% else %}<span class="sem-capa">{{ ebook.titulo }}</span>{% endif %}
+    </div>
+    <div class="pg-info">
+      <div class="cat">Ebook gratuito{% if ebook.categoria %} · {{ ebook.categoria }}{% endif %}</div>
+      <h1>{{ ebook.titulo }}</h1>
+      {% if ebook.subtitulo %}<p class="sub">{{ ebook.subtitulo }}</p>{% endif %}
+      {% if ebook.descricao %}<p class="desc">{{ ebook.descricao }}</p>{% endif %}
+      <p class="meta">{{ ebook.paginas ~ ' páginas · ' if ebook.paginas }}PDF · leitura online ou download</p>
+
+      {% if liberado %}
+        <div class="acoes">
+          <a class="btn btn-vinho" href="/ler/{{ ebook.slug }}">Ler agora</a>
+          <a class="btn btn-linha" href="/ler/{{ ebook.slug }}/download">Baixar PDF</a>
+        </div>
+      {% else %}
+        <div class="pg-cta">
+          <b>{{ 'Complete seu cadastro e leia agora' if leitor else 'Receba este e todos os outros ebooks' }}</b>
+          <span>Cadastro rápido e gratuito. O acesso é liberado na hora.</span>
+          <div class="acoes">
+            <a class="btn btn-ouro" href="/acesso?next={{ ('/ler/' ~ ebook.slug)|urlencode }}">Liberar acesso gratuito</a>
+            {% if not leitor %}<a class="btn btn-linha" href="/acesso?aba=entrar&next={{ ('/ler/' ~ ebook.slug)|urlencode }}">Já tenho acesso</a>{% endif %}
+          </div>
+          {% if not leitor %}<a class="link-estudante" href="/acesso?perfil=estudante&next={{ ('/ler/' ~ ebook.slug)|urlencode }}">🎓 É estudante? O acesso também é gratuito</a>{% endif %}
+        </div>
+      {% endif %}
+      <button type="button" class="link-btn compartilhar" data-url="{{ url_base }}/ebook/{{ ebook.slug }}" data-titulo="{{ ebook.titulo }}">
+        Compartilhar este ebook</button>
+    </div>
+  </article>
+
+  {% if outros %}
+  <section class="pg-outros">
+    <h2>Mais da biblioteca</h2>
+    <div class="pg-outros-lista">
+      {% for o in outros %}
+      <a href="/ebook/{{ o.slug }}" class="pg-outro">
+        <span class="capa">{% if o.capa %}<img src="/capas/{{ o.capa }}" alt="" loading="lazy">{% else %}<span class="sem-capa">{{ o.titulo }}</span>{% endif %}</span>
+        <span class="pg-outro-tit">{{ o.titulo }}</span>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+</div>
+<div class="toast" id="toast" role="status"></div>
+{% endblock %}
+{% block scripts %}<script src="/static/compartilhar.js?v=1"></script>{% endblock %}
