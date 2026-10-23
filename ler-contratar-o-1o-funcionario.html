@@ -19,7 +19,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="static/style.css?v=11">
+<link rel="stylesheet" href="static/style.css?v=14">
 
 </head>
 <body class="leitor"><div class="demo-faixa">Versão de <b>demonstração</b> para apresentação interna · dados fictícios · os formulários não enviam nada · <a href="admin-login.html">ver o painel da equipe</a> · <a href="index.html">ver a estante</a></div>
@@ -28,7 +28,9 @@
   <a class="voltar" href="/" title="Voltar à estante">←<span> Estante</span></a>
   <div class="tit">Contratar o 1º funcionário</div>
   <div class="ctl">
+    <button class="btn-modo" id="modo" type="button" aria-label="Trocar o modo de leitura"></button>
     <button class="icone" id="menos" type="button" aria-label="Diminuir zoom">−</button>
+    <button class="zoom-ind" id="zoom-ind" type="button" title="Voltar para 100%" aria-label="Zoom atual; clique para voltar a 100%">100%</button>
     <button class="icone" id="mais" type="button" aria-label="Aumentar zoom">+</button>
     <span class="pag-ind" id="ind" aria-live="polite">–</span>
     <a class="btn btn-ouro btn-pq" href="/ler/contratar-o-1o-funcionario/download" title="Baixar o PDF">Baixar<span class="some-mobile">&nbsp;PDF</span></a>
@@ -38,6 +40,12 @@
 
 <main>
 <div class="paginas" id="paginas"><div class="carregando">Abrindo o ebook…</div></div>
+<div class="folhear" id="folhear" hidden>
+  <button class="vira vira-ant" id="ant" type="button" aria-label="Página anterior">‹</button>
+  <div class="folhear-livro" id="folhear-livro"></div>
+  <button class="vira vira-prox" id="prox" type="button" aria-label="Próxima página">›</button>
+  <p class="folhear-dica" id="dica">Clique nas setas, use ← → do teclado ou arraste o canto da página</p>
+</div>
 
 
 <div class="toast" id="toast" role="status"></div>
@@ -56,6 +64,7 @@
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
 <script>
 (function(){
   const URL_PDF = 'pdfs/contratar-o-1o-funcionario.pdf';
@@ -107,9 +116,19 @@
     if (e.isIntersecting) ind.textContent = e.target.dataset.n + ' / ' + total;
   }), {rootMargin: '-45% 0px -45% 0px'});
 
+  const zoomInd = document.getElementById('zoom-ind');
+  function mostrarZoom(){
+    zoomInd.textContent = Math.round(zoom * 100) + '%';
+    document.getElementById('menos').disabled = zoom <= ZOOM_MIN + 1e-9;
+    document.getElementById('mais').disabled = zoom >= ZOOM_MAX - 1e-9;
+  }
+  const ZOOM_MIN = .5, ZOOM_MAX = 2.5, ZOOM_PASSO = .1;
+
   function aplicarZoom(z){
+    zoom = Math.round(Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, z)) * 10) / 10;
+    mostrarZoom();
+    if (modo === 'folhear') { if (flip) montarFlip(paginaAtual()); return; }
     const ref = caixas.find(c => c.getBoundingClientRect().bottom > 80);
-    zoom = Math.max(.5, Math.min(2.5, z));
     caixas.forEach(c => {
       const s = escala(base);
       if (!feitas.has(+c.dataset.n)) { c.style.width = base.width * s + 'px'; c.style.height = base.height * s + 'px'; }
@@ -118,20 +137,143 @@
     caixas.forEach(c => { vista.unobserve(c); vista.observe(c); });
     if (ref) ref.scrollIntoView({block: 'start'});
   }
+  document.getElementById('mais').onclick = () => aplicarZoom(zoom + ZOOM_PASSO);
+  document.getElementById('menos').onclick = () => aplicarZoom(zoom - ZOOM_PASSO);
+  zoomInd.onclick = () => aplicarZoom(1);
+
+  // ===================== modo folhear (livro) =====================
+  const caixaFolhear = document.getElementById('folhear');
+  const livroWrap = document.getElementById('folhear-livro');
+  let flip = null, paginasFlip = [], desenhadas = new Set();
+
+  function tamanhoPagina(){
+    // tudo o que está acima do livro (barra, avisos) + o convite fixo embaixo
+    const topo = caixaFolhear.getBoundingClientRect().top + window.scrollY;
+    const convite = document.querySelector('.convite');
+    const altDisp = window.innerHeight - topo - (convite ? convite.offsetHeight : 0) - 70;
+    const estreito = window.innerWidth < 760;
+    const largDisp = window.innerWidth - (estreito ? 24 : 150);
+    const r = base.width / base.height;
+    let h = Math.max(260, altDisp), w = h * r;
+    const porLinha = estreito ? 1 : 2;           // celular: uma página por vez
+    if (w * porLinha > largDisp) { w = largDisp / porLinha; h = w / r; }
+    // Zoom: 100% = o livro cabe na tela; acima disso a página rola.
+    document.body.classList.toggle('livro-ampliado', zoom > 1);
+    return {w: Math.floor(w * zoom), h: Math.floor(h * zoom), estreito};
+  }
+
+  async function desenharFlip(i){
+    if (i < 0 || i >= total || desenhadas.has(i)) return;
+    desenhadas.add(i);
+    const pag = await doc.getPage(i + 1);
+    const div = paginasFlip[i];
+    const vp1 = pag.getViewport({scale: 1});
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const vp = pag.getViewport({scale: (div.clientWidth || vp1.width) / vp1.width * dpr});
+    const cv = document.createElement('canvas');
+    cv.width = Math.floor(vp.width); cv.height = Math.floor(vp.height);
+    await pag.render({canvasContext: cv.getContext('2d'), viewport: vp}).promise;
+    div.querySelector('.pf-conteudo').replaceChildren(cv);
+  }
+  // Desenha só a vizinhança da página aberta (ebook grande não trava o celular).
+  const vizinhanca = i => { for (let k = i - 2; k <= i + 4; k++) desenharFlip(k); };
+
+  function indicadorFlip(i){
+    const dupla = flip && flip.getOrientation() === 'landscape' && i > 0 && i < total - 1;
+    const a = i + 1, b = Math.min(i + 2, total);
+    ind.textContent = (dupla && b > a ? a + '–' + b : a) + ' / ' + total;
+    document.getElementById('ant').disabled = i <= 0;
+    document.getElementById('prox').disabled = i >= total - (dupla ? 2 : 1);
+  }
+
+  function montarFlip(inicio){
+    if (flip) { try { flip.destroy(); } catch (_) {} flip = null; }
+    livroWrap.innerHTML = '';
+    desenhadas = new Set();
+    const {w, h, estreito} = tamanhoPagina();
+    const raiz = document.createElement('div');
+    livroWrap.appendChild(raiz);
+    paginasFlip = [];
+    for (let i = 0; i < total; i++){
+      const p = document.createElement('div');
+      p.className = 'pf-pagina';
+      // capa e contracapa "duras", como num livro de verdade
+      if (i === 0 || i === total - 1) p.dataset.density = 'hard';
+      p.innerHTML = '<div class="pf-conteudo"><span class="pf-carregando">Página ' + (i + 1) + '</span></div>';
+      raiz.appendChild(p); paginasFlip.push(p);
+    }
+    flip = new St.PageFlip(raiz, {
+      width: w, height: h, size: 'fixed', showCover: true, usePortrait: estreito,
+      maxShadowOpacity: 0.45, flippingTime: 750, mobileScrollSupport: false, startPage: inicio || 0,
+      showPageCorners: true, drawShadow: true,
+    });
+    flip.loadFromHTML(paginasFlip);
+    livroWrap.style.width = (estreito ? w : w * 2) + 'px';
+    livroWrap.style.height = h + 'px';
+    flip.on('flip', e => { vizinhanca(e.data); indicadorFlip(e.data); esconderDica(); });
+    flip.on('changeOrientation', () => indicadorFlip(flip.getCurrentPageIndex()));
+    vizinhanca(inicio || 0); indicadorFlip(inicio || 0);
+  }
+
+  const esconderDica = () => document.getElementById('dica').classList.add('some');
+  document.getElementById('ant').onclick = () => flip && flip.flipPrev();
+  document.getElementById('prox').onclick = () => flip && flip.flipNext();
+
+  // ===================== troca de modo =====================
+  const PREF = 'leitor-modo';
+  const botaoModo = document.getElementById('modo');
+  let modo = 'folhear';
+  try { modo = localStorage.getItem(PREF) || (matchMedia('(prefers-reduced-motion: reduce)').matches ? 'rolar' : 'folhear'); } catch (_) {}
+
+  // página que está aberta, para trocar de modo sem perder o lugar
+  function paginaAtual(){
+    if (modo === 'folhear' && flip) return flip.getCurrentPageIndex();
+    const c = caixas.find(c => c.getBoundingClientRect().bottom > 120);
+    return c ? +c.dataset.n - 1 : 0;
+  }
+
+  function aplicarModo(novo, pagina){
+    modo = novo;
+    try { localStorage.setItem(PREF, modo); } catch (_) {}
+    const folhear = modo === 'folhear';
+    document.body.classList.toggle('modo-folhear', folhear);
+    caixaFolhear.hidden = !folhear; area.hidden = folhear;
+    botaoModo.innerHTML = folhear ? '↕<span class="some-mobile">&nbsp;Rolar</span>' : '📖<span class="some-mobile">&nbsp;Folhear</span>';
+    botaoModo.title = folhear ? 'Ler rolando a página' : 'Ler folheando, como um livro';
+    if (folhear) { montarFlip(pagina); }
+    else {
+      if (flip) { try { flip.destroy(); } catch (_) {} flip = null; livroWrap.innerHTML = ''; }
+      if (!caixas.length) montar();
+      if (pagina > 0 && caixas[pagina]) setTimeout(() => caixas[pagina].scrollIntoView({block: 'start'}), 50);
+      ind.textContent = (pagina + 1) + ' / ' + total;
+    }
+  }
+  botaoModo.onclick = () => aplicarModo(modo === 'folhear' ? 'rolar' : 'folhear', paginaAtual());
+
   document.addEventListener('keydown', e => {
     if (e.target.closest('input,textarea')) return;
-    if (e.key === '+' || e.key === '=') aplicarZoom(zoom + .2);
-    if (e.key === '-') aplicarZoom(zoom - .2);
+    if (e.key === '+' || e.key === '=') return aplicarZoom(zoom + ZOOM_PASSO);
+    if (e.key === '-') return aplicarZoom(zoom - ZOOM_PASSO);
+    if (e.key === '0') return aplicarZoom(1);
+    if (modo === 'folhear' && flip) {
+      if (e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); flip.flipNext(); }
+      if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); flip.flipPrev(); }
+    }
   });
-  document.getElementById('mais').onclick = () => aplicarZoom(zoom + .2);
-  document.getElementById('menos').onclick = () => aplicarZoom(zoom - .2);
-  let t; window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(() => aplicarZoom(zoom), 200); });
+  let t; window.addEventListener('resize', () => {
+    clearTimeout(t);
+    t = setTimeout(() => modo === 'folhear' ? montarFlip(paginaAtual()) : aplicarZoom(zoom), 250);
+  });
 
   lib.getDocument({url: URL_PDF, withCredentials: true}).promise.then(async d => {
     doc = d; total = d.numPages;
     base = (await d.getPage(1)).getViewport({scale: 1});
     ind.textContent = '1 / ' + total;
-    montar();
+    area.innerHTML = '';
+    // Sem a biblioteca de virar páginas (bloqueada/offline), cai no modo rolar.
+    if (!window.St || !St.PageFlip) modo = 'rolar';
+    mostrarZoom();
+    aplicarModo(modo, 0);
   }).catch(() => {
     area.innerHTML = '<div class="carregando">Não foi possível abrir o ebook aqui. <a style="color:var(--dourado)" href="/ler/contratar-o-1o-funcionario/download">Baixe o PDF</a>.</div>';
   });
@@ -147,4 +289,4 @@
 })();
 </script>
 
-<script>window.DEMO = {"presentes": ["contratar-o-1o-funcionario"], "evento_slug": "contratar-o-1o-funcionario", "ebook_admin": 80, "admin": {}};</script><script src="static/demo.js"></script></body></html>
+<script>window.DEMO = {"presentes": ["contratar-o-1o-funcionario"], "evento_slug": "contratar-o-1o-funcionario", "ebook_admin": 104, "admin": {}};</script><script src="static/demo.js"></script></body></html>
