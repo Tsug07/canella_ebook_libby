@@ -9,7 +9,8 @@
     <p class="lead">
       <span class="etq etq-vis-{{ ebook.visibilidade }}">{{ visibilidades[ebook.visibilidade][0] }}</span>
       {% if ebook.destaque %}<span class="etq etq-ouro">★ Destaque</span>{% endif %}
-      {{ ebook.paginas or '?' }} páginas · {{ ebook.tamanho|tamanho }} · adicionado em {{ ebook.criado_em|dtbr }}</p>
+      {{ ebook.paginas or '?' }} páginas · {{ ebook.tamanho|tamanho }} · adicionado em <b>{{ ebook.criado_em|dtbr }}</b> ({{ ebook.criado_em|idade }})
+      {% if ebook.pdf_atualizado_em %}· PDF trocado em <b>{{ ebook.pdf_atualizado_em|dtbr }}</b> ({{ ebook.pdf_atualizado_em|idade }}){% endif %}</p>
   </div>
   <div class="acoes-linha">
     <a class="btn btn-linha btn-pq" href="/admin/ebooks/{{ ebook.id }}/pdf" target="_blank" rel="noopener">Ver PDF</a>

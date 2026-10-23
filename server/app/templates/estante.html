@@ -6,7 +6,7 @@
 data-slug="{{ e.slug }}" data-titulo="{{ e.titulo }}" data-subtitulo="{{ e.subtitulo or '' }}"
 data-descricao="{{ e.descricao or '' }}" data-categoria="{{ categoria }}" data-paginas="{{ e.paginas or '' }}"
 data-capa="{{ '/capas/' ~ e.capa if e.capa else '' }}" data-liberado="{{ 1 if e.liberado else 0 }}"
-data-publico="{{ 1 if e.publico else 0 }}"
+data-publico="{{ 1 if e.publico else 0 }}" data-data="{{ ('atualizado em ' ~ (e.pdf_atualizado_em|mes_ano)) if e.pdf_atualizado_em else ('publicado em ' ~ (e.criado_em|mes_ano)) }}"
 {%- endmacro %}
 
 {% block conteudo %}
@@ -135,7 +135,7 @@ data-publico="{{ 1 if e.publico else 0 }}"
     $('ficha-titulo').textContent = d.titulo;
     $('ficha-sub').textContent = d.subtitulo; $('ficha-sub').hidden = !d.subtitulo;
     $('ficha-desc').textContent = d.descricao; $('ficha-desc').hidden = !d.descricao;
-    $('ficha-meta').textContent = d.paginas ? d.paginas + ' páginas · PDF' : 'PDF';
+    $('ficha-meta').textContent = (d.paginas ? d.paginas + ' páginas · PDF' : 'PDF') + (d.data ? ' · ' + d.data : '');
     const liberado = d.liberado === '1';
     $('ficha-bloqueado').hidden = liberado;
     const acoes = $('ficha-acoes'); acoes.innerHTML = '';

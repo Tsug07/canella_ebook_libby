@@ -553,3 +553,10 @@ details.painel:not([open]) > summary{border-bottom:0}
   .hero-ctas{align-items:flex-start}
   .toast{bottom:84px}
 }
+
+.etq-revisar{background:#fdf0dc;color:#8a5a00;margin-top:4px}
+/* ficha: a capa não estica até a altura do texto (aparecia uma faixa cinza) */
+.ficha .capa{align-self:start}
+.ficha-rodape{align-items:center}
+.ficha-rodape .link-btn{padding:0;display:inline-flex;align-items:center;font:600 14px/1.2 var(--f-texto)}
+.ficha-rodape .compartilhar{margin-top:0}

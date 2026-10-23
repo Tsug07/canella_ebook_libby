@@ -27,7 +27,8 @@
       <h1>{{ ebook.titulo }}</h1>
       {% if ebook.subtitulo %}<p class="sub">{{ ebook.subtitulo }}</p>{% endif %}
       {% if ebook.descricao %}<p class="desc">{{ ebook.descricao }}</p>{% endif %}
-      <p class="meta">{{ ebook.paginas ~ ' páginas · ' if ebook.paginas }}PDF · leitura online ou download</p>
+      <p class="meta">{{ ebook.paginas ~ ' páginas · ' if ebook.paginas }}PDF · leitura online ou download ·
+        {% if ebook.pdf_atualizado_em %}atualizado em {{ ebook.pdf_atualizado_em|mes_ano }}{% else %}publicado em {{ ebook.criado_em|mes_ano }}{% endif %}</p>
 
       {% if liberado %}
         <div class="acoes">

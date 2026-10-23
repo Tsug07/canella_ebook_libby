@@ -70,6 +70,41 @@ def _tamanho(v):
 
 
 tpl.env.filters["dtbr"] = _dt_br
+
+_MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"]
+
+
+def _mes_ano(v) -> str:
+    """'out/2026' — para o leitor saber de quando é o conteúdo."""
+    return f"{_MESES[v.month - 1]}/{v.year}" if v else ""
+
+
+def _idade(v) -> str:
+    """'hoje', 'há 5 dias', 'há 3 meses', 'há 1 ano e 2 meses'."""
+    if not v:
+        return ""
+    d = v.date() if isinstance(v, datetime) else v
+    dias = (date.today() - d).days
+    if dias <= 0:
+        return "hoje"
+    if dias == 1:
+        return "ontem"
+    if dias < 30:
+        return f"há {dias} dias"
+    meses = (date.today().year - d.year) * 12 + date.today().month - d.month - (date.today().day < d.day)
+    meses = max(meses, 1)
+    if meses < 12:
+        return f"há {meses} {'mês' if meses == 1 else 'meses'}"
+    anos, resto = divmod(meses, 12)
+    txt = f"há {anos} {'ano' if anos == 1 else 'anos'}"
+    return txt + (f" e {resto} {'mês' if resto == 1 else 'meses'}" if resto else "")
+
+
+tpl.env.filters["mes_ano"] = _mes_ano
+tpl.env.filters["idade"] = _idade
+# Ebook na estante há mais tempo que isso ganha a etiqueta "Revisar?" no painel.
+REVISAR_MESES = int(os.environ.get("REVISAR_MESES", "12"))
+tpl.env.globals["revisar_meses"] = REVISAR_MESES
 # Botão "Fale conosco" (flutuante nas páginas públicas). Por padrão, o número da
 # Canella com mensagem pronta e utm próprio — o link do RD Station ("Link da
 # Bio") misturaria as conversas da biblioteca com as da bio do Instagram.
@@ -218,7 +253,8 @@ def estante(request: Request):
     leitor = leitor_atual(request)
     completo = bool(leitor and leitor["acesso_completo"])
     ganhos = ids_de_evento(leitor)
-    campos = (f"id, slug, titulo, subtitulo, descricao, categoria, capa, paginas, destaque, "
+    campos = (f"id, slug, titulo, subtitulo, descricao, categoria, capa, paginas, destaque, criado_em, "
+              f"pdf_atualizado_em, "
               f"criado_em > now() - interval '{NOVO_DIAS} days' AS novo")
     ebooks = db.q(f"SELECT {campos} FROM ebook WHERE visibilidade = 'publicado' "
                   "ORDER BY ordem, criado_em DESC")
@@ -1141,30 +1177,41 @@ VISIBILIDADES_PAINEL = {**VISIBILIDADES, "arquivado": ("Arquivado", "Fora de cir
 
 
 @app.get("/admin/ebooks", response_class=HTMLResponse)
-def admin_ebooks(request: Request, ver: str = ""):
+def admin_ebooks(request: Request, ver: str = "", ordem: str = ""):
     if not _admin_ok(request):
         return _para_login(request)
-    return _ebooks_render(request, ver, erro=None, f={})
+    return _ebooks_render(request, ver, erro=None, f={}, ordem=ordem)
 
 
-def _ebooks_render(request: Request, ver: str, erro: str | None, f: dict):
+ORDENS_EBOOKS = {"": ("Posição na estante", "e.ordem, e.criado_em DESC"),
+                 "recentes": ("Mais recentes primeiro", "e.criado_em DESC"),
+                 "antigos": ("Mais antigos primeiro", "COALESCE(e.pdf_atualizado_em, e.criado_em) ASC")}
+
+
+def _ebooks_render(request: Request, ver: str, erro: str | None, f: dict, ordem: str = ""):
     arquivados = ver == "arquivados"
+    ordem = ordem if ordem in ORDENS_EBOOKS else ""
     n_arq = db.one("SELECT COUNT(*) AS n FROM ebook WHERE visibilidade = 'arquivado'")["n"]
-    return _admin_render(request, "ebooks.html", ebooks=_lista_ebooks(arquivados), categorias=_categorias(),
+    return _admin_render(request, "ebooks.html", ebooks=_lista_ebooks(arquivados, ordem), categorias=_categorias(),
                          erro=erro, f=f, aba="ebooks", visibilidades=VISIBILIDADES,
-                         rotulos=VISIBILIDADES_PAINEL, ver_arquivados=arquivados, n_arquivados=n_arq)
+                         rotulos=VISIBILIDADES_PAINEL, ver_arquivados=arquivados, n_arquivados=n_arq,
+                         ordem=ordem, ordens=ORDENS_EBOOKS)
 
 
-def _lista_ebooks(arquivados: bool = False) -> list[dict]:
+def _lista_ebooks(arquivados: bool = False, ordem: str = "") -> list[dict]:
+    ordenar = "e.arquivado_em DESC" if arquivados else ORDENS_EBOOKS.get(ordem, ORDENS_EBOOKS[""])[1]
     return db.q(f"""
         SELECT e.*, s.titulo AS substituto_titulo,
+          -- "Revisar?": na estante há mais de REVISAR_MESES sem trocar o PDF
+          (e.visibilidade = 'publicado' AND COALESCE(e.pdf_atualizado_em, e.criado_em)
+             < now() - make_interval(months => {REVISAR_MESES})) AS revisar,
           (SELECT COUNT(*) FROM acesso_log a WHERE a.ebook_id = e.id AND a.acao = 'leitura')  AS leituras,
           (SELECT COUNT(*) FROM acesso_log a WHERE a.ebook_id = e.id AND a.acao = 'download') AS downloads,
           (SELECT COUNT(*) FROM evento ev WHERE ev.ebook_id = e.id) AS eventos,
           (SELECT COUNT(*) FROM pessoa p WHERE p.ebook_pedido_id = e.id) AS leads
         FROM ebook e LEFT JOIN ebook s ON s.id = e.substituto_id
         WHERE e.visibilidade {'=' if arquivados else '<>'} 'arquivado'
-        ORDER BY {'e.arquivado_em DESC' if arquivados else 'e.ordem, e.criado_em DESC'}""")
+        ORDER BY {ordenar}""")
 
 
 @app.post("/admin/ebooks", response_class=HTMLResponse)
@@ -1269,11 +1316,12 @@ async def admin_ebook_salvar(request: Request, eid: int, titulo: str = Form(""),
     vis = ebook["visibilidade"] if ebook["visibilidade"] == "arquivado" else _visibilidade(visibilidade)
     db.ex("""UPDATE ebook SET titulo=%s, subtitulo=%s, descricao=%s, categoria=%s, ordem=%s,
                               visibilidade=%s, destaque=%s, arquivo=%s, capa=%s, paginas=%s, tamanho=%s,
-                              atualizado_em=now()
+                              atualizado_em=now(),
+                              pdf_atualizado_em = CASE WHEN %s THEN now() ELSE pdf_atualizado_em END
              WHERE id=%s""",
           (titulo, _limpo(subtitulo, 250) or None, _limpo(descricao, 3000) or None,
            _limpo(categoria, 80) or None, ordem, vis, bool(destaque), novo["arquivo"], novo["capa"],
-           novo["paginas"], novo["tamanho"], eid))
+           novo["paginas"], novo["tamanho"], novo["arquivo"] != ebook["arquivo"], eid))
     if novo["arquivo"] != ebook["arquivo"]:
         arq.apagar(arq.PDFS, ebook["arquivo"])
     if novo["capa"] != ebook["capa"]:

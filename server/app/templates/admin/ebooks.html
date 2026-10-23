@@ -44,11 +44,19 @@
       <a href="/admin/ebooks" class="{{ 'ativo' if not ver_arquivados }}">Em uso</a>
       <a href="/admin/ebooks?ver=arquivados" class="{{ 'ativo' if ver_arquivados }}">Arquivados ({{ n_arquivados }})</a>
     </nav>
+    {% if not ver_arquivados %}
+    <form method="get" class="filtros">
+      <label for="ordem" class="tab-sub">Ordenar:</label>
+      <select id="ordem" name="ordem" onchange="this.form.submit()">
+        {% for k, (rotulo, _) in ordens.items() %}<option value="{{ k }}" {% if ordem == k %}selected{% endif %}>{{ rotulo }}</option>{% endfor %}
+      </select>
+    </form>
+    {% endif %}
   </div>
   {% if ver_arquivados %}<p class="dica" style="padding:14px 20px 0;margin:0">Arquivados saíram da estante e os links antigos avisam que o material foi atualizado. Os leads e o histórico continuam aqui; abra um para restaurar.</p>{% endif %}
   {% if ebooks %}
   <div class="rolagem"><table class="tab">
-    <thead><tr><th></th><th>Título</th><th>Prateleira</th><th>{{ 'Arquivado' if ver_arquivados else 'Visibilidade' }}</th>
+    <thead><tr><th></th><th>Título</th><th>Adicionado em</th><th>Prateleira</th><th>{{ 'Arquivado' if ver_arquivados else 'Visibilidade' }}</th>
       <th class="num">Leads</th><th class="num">Leituras</th><th class="num">Downloads</th><th>Eventos</th><th></th></tr></thead>
     <tbody>
     {% for e in ebooks %}
@@ -57,6 +65,10 @@
         <td><a class="tab-titulo" href="/admin/ebooks/{{ e.id }}">{{ e.titulo }}</a>
           {% if e.subtitulo %}<br><span class="tab-sub">{{ e.subtitulo }}</span>{% endif %}
           <br><span class="tab-sub">{{ e.paginas or '?' }} páginas</span></td>
+        <td style="white-space:nowrap"><span title="{{ e.criado_em|dtbr }}">{{ e.criado_em.strftime('%d/%m/%Y') }}</span>
+          <br><span class="tab-sub">{{ e.criado_em|idade }}</span>
+          {% if e.pdf_atualizado_em %}<br><span class="tab-sub" title="{{ e.pdf_atualizado_em|dtbr }}">PDF trocado {{ e.pdf_atualizado_em|idade }}</span>{% endif %}
+          {% if e.revisar %}<br><span class="etq etq-revisar" title="Na estante há mais de {{ revisar_meses }} meses sem trocar o PDF. Vale conferir se o conteúdo continua atual.">Revisar?</span>{% endif %}</td>
         <td>{{ e.categoria or '—' }}</td>
         <td>{% if ver_arquivados %}<span class="tab-sub">{{ e.arquivado_em|dtbr }}</span>
               {% if e.motivo_arquivo %}<br><span class="tab-sub">{{ e.motivo_arquivo }}</span>{% endif %}

@@ -131,6 +131,10 @@ ALTER TABLE pessoa ADD COLUMN IF NOT EXISTS curso TEXT;
 ALTER TABLE pessoa ADD COLUMN IF NOT EXISTS periodo TEXT;
 ALTER TABLE evento ADD COLUMN IF NOT EXISTS para_estudantes BOOLEAN DEFAULT FALSE;
 
+-- Controle de idade do material: criado_em é quando entrou na biblioteca;
+-- pdf_atualizado_em é a última troca do PDF (edição nova do mesmo assunto).
+ALTER TABLE ebook ADD COLUMN IF NOT EXISTS pdf_atualizado_em TIMESTAMP;
+
 -- Equipe do painel: um login por pessoa (antes era uma senha única).
 -- sessao_versao: trocar a senha/desativar sobe o número e derruba as sessões
 -- abertas em outros aparelhos (o cookie guarda a versão com que foi emitido).
