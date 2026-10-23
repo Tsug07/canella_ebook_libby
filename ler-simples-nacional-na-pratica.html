@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="pt-br"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Simples Nacional na Prática · Canella & Santos</title>
+
+<meta name="description" content="Ebooks gratuitos da Canella & Santos Contabilidade Consultiva.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Biblioteca Canella & Santos">
+<meta property="og:title" content="Biblioteca Canella & Santos">
+<meta property="og:description" content="Ebooks gratuitos sobre contabilidade, tributos e gestão do seu negócio.">
+<meta property="og:image" content="static/img/og-biblioteca.jpg">
+<meta property="og:url" content="https://tsug07.github.io/canella_ebook_libby/">
+<meta name="twitter:card" content="summary_large_image">
+
+<meta name="theme-color" content="#6C1F2E">
+<link rel="icon" href="static/img/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="static/img/favicon-32.png">
+<link rel="apple-touch-icon" href="static/img/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="static/style.css?v=11">
+
+</head>
+<body class="leitor"><div class="demo-faixa">Versão de <b>demonstração</b> para apresentação interna · dados fictícios · os formulários não enviam nada · <a href="admin-login.html">ver o painel da equipe</a> · <a href="index.html">ver a estante</a></div>
+
+<header class="barra-leitor"><div class="in">
+  <a class="voltar" href="/" title="Voltar à estante">←<span> Estante</span></a>
+  <div class="tit">Simples Nacional na Prática</div>
+  <div class="ctl">
+    <button class="icone" id="menos" type="button" aria-label="Diminuir zoom">−</button>
+    <button class="icone" id="mais" type="button" aria-label="Aumentar zoom">+</button>
+    <span class="pag-ind" id="ind" aria-live="polite">–</span>
+    <a class="btn btn-ouro btn-pq" href="/ler/simples-nacional-na-pratica/download" title="Baixar o PDF">Baixar<span class="some-mobile">&nbsp;PDF</span></a>
+  </div>
+</div></header>
+
+
+<main>
+<div class="paginas" id="paginas"><div class="carregando">Abrindo o ebook…</div></div>
+
+
+<div class="toast" id="toast" role="status"></div>
+</main>
+
+
+
+<script>
+  // Evita clique duplo no envio e leva o foco ao 1º campo com erro.
+  document.querySelectorAll('form[data-enviando]').forEach(f => f.addEventListener('submit', () => {
+    const b = f.querySelector('button[type=submit]');
+    if (b) setTimeout(() => { b.disabled = true; b.textContent = f.dataset.enviando; });
+  }));
+  const comErro = document.querySelector('.tem-erro input, .tem-erro select');
+  if (comErro) comErro.focus();
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+(function(){
+  const URL_PDF = 'pdfs/simples-nacional-na-pratica.pdf';
+  const lib = window['pdfjs-dist/build/pdf'];
+  lib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+  const area = document.getElementById('paginas');
+  const ind = document.getElementById('ind');
+  let doc, base, zoom = 1, total = 0;
+  const caixas = [], feitas = new Map(); // nº da página -> escala renderizada
+
+  const largura = () => Math.min(920, window.innerWidth - 24);
+  const escala = vp => zoom * largura() / vp.width;
+
+  function montar(){
+    area.innerHTML = '';
+    caixas.length = 0; feitas.clear();
+    for (let i = 1; i <= total; i++){
+      const d = document.createElement('div');
+      d.className = 'pagina'; d.dataset.n = i;
+      const s = escala(base);
+      d.style.width = base.width * s + 'px'; d.style.height = base.height * s + 'px';
+      area.appendChild(d); caixas.push(d); vista.observe(d); atual.observe(d);
+    }
+  }
+
+  async function desenhar(div){
+    const n = +div.dataset.n;
+    const pag = await doc.getPage(n);
+    const vp1 = pag.getViewport({scale: 1});
+    const s = escala(vp1);
+    if (feitas.get(n) === s) return;
+    feitas.set(n, s);
+    const vp = pag.getViewport({scale: s});
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const cv = document.createElement('canvas');
+    cv.width = Math.floor(vp.width * dpr); cv.height = Math.floor(vp.height * dpr);
+    div.style.width = vp.width + 'px'; div.style.height = vp.height + 'px';
+    await pag.render({canvasContext: cv.getContext('2d'), viewport: vp,
+                      transform: dpr !== 1 ? [dpr, 0, 0, dpr, 0, 0] : null}).promise;
+    div.replaceChildren(cv);
+  }
+
+  // Renderiza só o que está perto da tela (ebooks longos não travam o celular).
+  const vista = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) desenhar(e.target);
+  }), {rootMargin: '1200px 0px'});
+  const atual = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) ind.textContent = e.target.dataset.n + ' / ' + total;
+  }), {rootMargin: '-45% 0px -45% 0px'});
+
+  function aplicarZoom(z){
+    const ref = caixas.find(c => c.getBoundingClientRect().bottom > 80);
+    zoom = Math.max(.5, Math.min(2.5, z));
+    caixas.forEach(c => {
+      const s = escala(base);
+      if (!feitas.has(+c.dataset.n)) { c.style.width = base.width * s + 'px'; c.style.height = base.height * s + 'px'; }
+    });
+    feitas.forEach((_, n) => feitas.set(n, -1)); // força redesenho nas visíveis
+    caixas.forEach(c => { vista.unobserve(c); vista.observe(c); });
+    if (ref) ref.scrollIntoView({block: 'start'});
+  }
+  document.addEventListener('keydown', e => {
+    if (e.target.closest('input,textarea')) return;
+    if (e.key === '+' || e.key === '=') aplicarZoom(zoom + .2);
+    if (e.key === '-') aplicarZoom(zoom - .2);
+  });
+  document.getElementById('mais').onclick = () => aplicarZoom(zoom + .2);
+  document.getElementById('menos').onclick = () => aplicarZoom(zoom - .2);
+  let t; window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(() => aplicarZoom(zoom), 200); });
+
+  lib.getDocument({url: URL_PDF, withCredentials: true}).promise.then(async d => {
+    doc = d; total = d.numPages;
+    base = (await d.getPage(1)).getViewport({scale: 1});
+    ind.textContent = '1 / ' + total;
+    montar();
+  }).catch(() => {
+    area.innerHTML = '<div class="carregando">Não foi possível abrir o ebook aqui. <a style="color:var(--dourado)" href="/ler/simples-nacional-na-pratica/download">Baixe o PDF</a>.</div>';
+  });
+
+  const qs = new URLSearchParams(location.search);
+  if (qs.has('bemvindo') || qs.has('presente')){
+    const el = document.getElementById('toast');
+    el.textContent = qs.has('presente') ? 'Ebook liberado! Ele fica guardado na sua estante.' : 'Acesso liberado! Boa leitura.';
+    requestAnimationFrame(() => el.classList.add('ver'));
+    setTimeout(() => el.classList.remove('ver'), 4500);
+    history.replaceState(null, '', location.pathname);
+  }
+})();
+</script>
+
+<script>window.DEMO = {"presentes": ["contratar-o-1o-funcionario"], "evento_slug": "contratar-o-1o-funcionario", "ebook_admin": 41, "admin": {}};</script><script src="static/demo.js"></script></body></html>

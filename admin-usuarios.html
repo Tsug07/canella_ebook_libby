@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="pt-br"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Usuários · Biblioteca Canella & Santos</title>
+<link rel="icon" href="static/img/favicon.ico" sizes="any">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="static/style.css?v=11">
+</head>
+<body class="admin"><div class="demo-faixa">Versão de <b>demonstração</b> para apresentação interna · dados fictícios · os formulários não enviam nada · <a href="admin-login.html">ver o painel da equipe</a> · <a href="index.html">ver a estante</a></div>
+
+<header class="adm-topo"><div class="in">
+  <a href="/admin"><img src="static/img/logo.png" alt="Canella & Santos" width="130" height="38"></a>
+  <nav>
+    <a href="/admin/ebooks" class="">Ebooks</a>
+    <a href="/admin/eventos" class="">Eventos e QR</a>
+    <a href="/admin/leads" class="">Leads</a>
+    
+    <a href="/admin/usuarios" class="ativo">Usuários</a>
+    <a href="/admin/atividade" class="">Atividade</a>
+    <a href="/admin/backups" class="">Backups</a>
+    
+  </nav>
+  <div class="dir">
+    <a href="/" target="_blank" rel="noopener">Ver estante ↗</a>
+    <a href="/admin/conta" class="eu" title="Minha conta">Equipe <span class="ponto-alerta" title="Verificação em duas etapas desativada"></span></a>
+    <a href="/admin/sair">Sair</a>
+  </div>
+</div></header>
+
+<main class="adm">
+  
+  
+  
+<div class="adm-cab"><div>
+  <h1>Usuários do painel</h1>
+  <p class="lead">Cada pessoa da equipe com o próprio login. Assim dá para saber quem fez o quê (veja em <a href="/admin/atividade">Atividade</a>) e tirar o acesso de quem sair da empresa sem trocar a senha de todo mundo.</p>
+</div></div>
+
+
+
+<div class="painel">
+  <div class="cab"><h2>Equipe (1)</h2></div>
+  <div class="rolagem"><table class="tab">
+    <thead><tr><th>Pessoa</th><th>Papel</th><th>Duas etapas</th><th>Último acesso</th><th>Situação</th><th></th></tr></thead>
+    <tbody>
+    
+      <tr>
+        <td><b>Equipe Canella</b> <span class="tab-sub">(você)</span><br><span class="tab-sub">@equipe</span></td>
+        <td>
+          <form method="post" action="/admin/usuarios/26/papel" class="inline">
+            <select name="papel" onchange="this.form.submit()" aria-label="Papel de Equipe Canella" disabled title="Peça a outro administrador para mudar o seu papel">
+              <option value="admin" selected>Administrador</option><option value="equipe" >Equipe</option>
+            </select>
+          </form>
+        </td>
+        <td><span class="etq etq-off">Não</span></td>
+        <td class="tab-sub">23/10/2026 18:54</td>
+        <td><span class="etq etq-ok">Ativo</span></td>
+        <td><div class="acoes-linha">
+          <a class="link-btn" href="/admin/conta">Minha conta</a>
+        </div></td>
+      </tr>
+    
+    </tbody>
+  </table></div>
+</div>
+
+<div class="painel">
+  <div class="cab"><h2>Adicionar pessoa</h2></div>
+  <div class="bd">
+    
+    <form method="post" action="/admin/usuarios" data-enviando="Criando…">
+      <div class="grade-form">
+        <div class="campo"><label for="u-nome">Nome</label><input id="u-nome" name="nome" value="" required maxlength="120"></div>
+        <div class="campo"><label for="u-usuario">Usuário (para entrar)</label>
+          <input id="u-usuario" name="usuario" value="" required maxlength="30" autocapitalize="none" spellcheck="false"
+                 placeholder="ex.: mariana.lima" data-sugere-de="u-nome">
+          <small>Sugerido a partir do nome. Minúsculas, sem espaço nem acento.</small></div>
+        <div class="campo"><label for="u-email">E-mail <span class="opc">(opcional)</span></label><input id="u-email" name="email" type="email" value="" maxlength="160"></div>
+      </div>
+      
+      <fieldset class="vis-opcoes">
+        <legend>Papel</legend>
+        
+        <label class="vis-opcao"><input type="radio" name="papel" value="admin" >
+          <span><b>Administrador</b><small>Tudo, inclusive gerenciar usuários, ver a atividade e baixar backups.</small></span></label>
+        
+        <label class="vis-opcao"><input type="radio" name="papel" value="equipe" checked>
+          <span><b>Equipe</b><small>Ebooks, eventos e leads. Não gerencia usuários nem backups.</small></span></label>
+        
+      </fieldset>
+      <button class="btn btn-vinho" type="submit">Criar e gerar senha temporária</button>
+    </form>
+  </div>
+</div>
+
+</main>
+
+<dialog class="qr-grande" id="qr-grande" aria-label="QR code ampliado">
+  <p id="qr-nome" style="margin:0 0 10px;font:600 18px var(--f-titulo);color:var(--vinho)"></p>
+  <img id="qr-img" alt="QR code ampliado">
+  <div style="margin-top:12px"><button class="btn btn-vinho btn-pq" type="button" onclick="this.closest('dialog').close()">Fechar</button></div>
+</dialog>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+  const toast = msg => { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('ver');
+                         clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('ver'), 2200); };
+
+  // Botão de envio mostra que está trabalhando (upload de PDF grande demora).
+  document.querySelectorAll('form[data-enviando]').forEach(f => f.addEventListener('submit', () => {
+    const b = f.querySelector('button[type=submit]');
+    if (b) { b.disabled = true; b.textContent = f.dataset.enviando; }
+  }));
+
+  // Copiar link do QR.
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-copiar]');
+    if (!b) return;
+    navigator.clipboard.writeText(b.dataset.copiar).then(() => toast('Link copiado!'), () => prompt('Copie o link:', b.dataset.copiar));
+  });
+
+  // QR ampliado (para conferir/escanear direto da tela).
+  const dlg = document.getElementById('qr-grande');
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-qr]');
+    if (!b) return;
+    document.getElementById('qr-img').src = b.dataset.qr;
+    document.getElementById('qr-nome').textContent = b.dataset.nome || '';
+    dlg.showModal();
+  });
+  dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+
+  // Botão "Mostrar" nos campos de senha.
+  document.querySelectorAll('.ver-senha').forEach(b => b.addEventListener('click', () => {
+    const c = document.getElementById(b.dataset.alvo), ver = c.type === 'password';
+    c.type = ver ? 'text' : 'password'; b.textContent = ver ? 'Ocultar' : 'Mostrar';
+  }));
+
+  // Usuário sugerido a partir do nome ("Mariana Lima Souza" -> "mariana.souza"), até a pessoa editar.
+  document.querySelectorAll('[data-sugere-de]').forEach(u => {
+    const nome = document.getElementById(u.dataset.sugereDe);
+    let mexeu = !!u.value;
+    u.addEventListener('input', () => { mexeu = true; u.value = u.value.toLowerCase().replace(/\s/g, ''); });
+    if (nome) nome.addEventListener('input', () => {
+      if (mexeu) return;
+      const p = nome.value.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z ]/g, '').trim().split(/\s+/).filter(Boolean);
+      u.value = !p.length ? '' : (p.length === 1 ? p[0] : p[0] + '.' + p[p.length - 1]).slice(0, 30);
+    });
+  });
+
+  // Mensagem de sucesso some sozinha; a de erro fica até a pessoa ler.
+  const ok = document.querySelector('.adm > .alerta-ok');
+  if (ok) setTimeout(() => ok.style.display = 'none', 7000);
+  if (location.search.includes('msg=') || location.search.includes('err='))
+    history.replaceState(null, '', location.pathname + location.hash);
+})();
+</script>
+
+<script>window.DEMO = {"presentes": ["contratar-o-1o-funcionario"], "evento_slug": "contratar-o-1o-funcionario", "ebook_admin": 41, "admin": {}};</script><script src="static/demo.js"></script></body></html>

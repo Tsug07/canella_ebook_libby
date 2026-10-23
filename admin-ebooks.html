@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="pt-br"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Ebooks · Biblioteca Canella & Santos</title>
+<link rel="icon" href="static/img/favicon.ico" sizes="any">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="static/style.css?v=11">
+</head>
+<body class="admin"><div class="demo-faixa">Versão de <b>demonstração</b> para apresentação interna · dados fictícios · os formulários não enviam nada · <a href="admin-login.html">ver o painel da equipe</a> · <a href="index.html">ver a estante</a></div>
+
+<header class="adm-topo"><div class="in">
+  <a href="/admin"><img src="static/img/logo.png" alt="Canella & Santos" width="130" height="38"></a>
+  <nav>
+    <a href="/admin/ebooks" class="ativo">Ebooks</a>
+    <a href="/admin/eventos" class="">Eventos e QR</a>
+    <a href="/admin/leads" class="">Leads</a>
+    
+    <a href="/admin/usuarios" class="">Usuários</a>
+    <a href="/admin/atividade" class="">Atividade</a>
+    <a href="/admin/backups" class="">Backups</a>
+    
+  </nav>
+  <div class="dir">
+    <a href="/" target="_blank" rel="noopener">Ver estante ↗</a>
+    <a href="/admin/conta" class="eu" title="Minha conta">Equipe <span class="ponto-alerta" title="Verificação em duas etapas desativada"></span></a>
+    <a href="/admin/sair">Sair</a>
+  </div>
+</div></header>
+
+<main class="adm">
+  
+  
+  
+<div class="adm-cab">
+  <div>
+    <h1>Ebooks</h1>
+    <p class="lead">Suba o PDF e a capa é gerada a partir da 1ª página. Depois de salvar, você pode criar o QR code de um evento na tela do ebook.</p>
+  </div>
+  <a class="btn btn-ouro" href="#novo" onclick="document.getElementById('novo').open = true">+ Adicionar ebook</a>
+</div>
+
+<details class="painel" id="novo" >
+  <summary class="cab"><h2>Adicionar ebook</h2><span class="etq etq-ouro">PDF até 100 MB</span></summary>
+  <div class="bd">
+    
+    <form method="post" action="/admin/ebooks" enctype="multipart/form-data" data-enviando="Enviando o PDF…">
+      <div class="grade-form">
+        <div class="campo"><label for="pdf">1. Arquivo PDF *</label><input id="pdf" name="pdf" type="file" accept="application/pdf,.pdf" required>
+          <small>Se o título estiver vazio, ele é preenchido com o nome do arquivo.</small></div>
+        <div class="campo"><label for="titulo">2. Título *</label><input id="titulo" name="titulo" value="" required maxlength="200"></div>
+        <div class="campo"><label for="subtitulo">Subtítulo <span class="opc">(opcional)</span></label><input id="subtitulo" name="subtitulo" value="" maxlength="250"></div>
+        <div class="campo"><label for="categoria">Prateleira</label>
+          <input id="categoria" name="categoria" list="cats" value="" maxlength="80" placeholder="Ex.: Tributário">
+          <small>Cada prateleira da estante é uma categoria. Escolha uma existente ou digite uma nova.</small></div>
+        <div class="campo larga"><label for="descricao">Descrição <span class="opc">(aparece ao clicar no livro)</span></label>
+          <textarea id="descricao" name="descricao" maxlength="3000" placeholder="O que a pessoa vai aprender com este ebook? É o que convence a pedir acesso."></textarea></div>
+        <div class="campo"><label for="capa">Capa própria <span class="opc">(opcional)</span></label><input id="capa" name="capa" type="file" accept="image/png,image/jpeg,image/webp">
+          <small>Sem capa, usamos a 1ª página do PDF.</small></div>
+        <div class="campo"><label for="ordem">Posição na prateleira</label><input id="ordem" name="ordem" type="number" value="0">
+          <small>Números menores ficam mais à esquerda.</small></div>
+        <div class="larga">
+<fieldset class="vis-opcoes">
+  <legend>Quem pode ver este ebook?</legend>
+  
+  <label class="vis-opcao vis-publicado">
+    <input type="radio" name="visibilidade" value="publicado" checked>
+    <span><b>Na estante</b><small>Aparece na prateleira. Abre para quem fez o cadastro e para quem ganhou no evento.</small></span>
+  </label>
+  
+  <label class="vis-opcao vis-evento">
+    <input type="radio" name="visibilidade" value="evento" >
+    <span><b>Só eventos</b><small>Não aparece na estante. Só quem escaneia o QR de um evento recebe.</small></span>
+  </label>
+  
+  <label class="vis-opcao vis-oculto">
+    <input type="radio" name="visibilidade" value="oculto" >
+    <span><b>Oculto</b><small>Ninguém acessa, nem pelo QR. Use para rascunhos ou para tirar do ar.</small></span>
+  </label>
+  
+</fieldset></div>
+      </div>
+      <label class="check"><input type="checkbox" name="destaque" value="1" >
+        <span><b>Destacar no topo da estante</b> (até 3 ebooks aparecem em "Em destaque").</span></label>
+      <button class="btn btn-vinho" type="submit">Salvar ebook</button>
+    </form>
+  </div>
+</details>
+<datalist id="cats"><option value="Departamento Pessoal"><option value="Gestão e Abertura"><option value="Tributário"></datalist>
+
+<div class="painel">
+  <div class="cab">
+    <nav class="abas-adm" aria-label="Filtrar ebooks">
+      <a href="/admin/ebooks" class="ativo">Em uso</a>
+      <a href="/admin/ebooks?ver=arquivados" class="">Arquivados (0)</a>
+    </nav>
+    
+    <form method="get" class="filtros">
+      <label for="ordem" class="tab-sub">Ordenar:</label>
+      <select id="ordem" name="ordem" onchange="this.form.submit()">
+        <option value="" selected>Posição na estante</option><option value="recentes" >Mais recentes primeiro</option><option value="antigos" >Mais antigos primeiro</option>
+      </select>
+    </form>
+    
+  </div>
+  
+  
+  <div class="rolagem"><table class="tab">
+    <thead><tr><th></th><th>Título</th><th>Adicionado em</th><th>Prateleira</th><th>Visibilidade</th>
+      <th class="num">Leads</th><th class="num">Leituras</th><th class="num">Downloads</th><th>Eventos</th><th></th></tr></thead>
+    <tbody>
+    
+      <tr>
+        <td><a href="/admin/ebooks/40"><img class="mini-capa" src="capas/simples-nacional-na-pratica-548c224e.jpg" alt=""></a></td>
+        <td><a class="tab-titulo" href="/admin/ebooks/40">Simples Nacional na Prática</a>
+          <br><span class="tab-sub">Como saber se o Simples ainda compensa para sua empresa</span>
+          <br><span class="tab-sub">5 páginas</span></td>
+        <td style="white-space:nowrap"><span title="18/09/2025 18:54">18/09/2025</span>
+          <br><span class="tab-sub">há 1 ano e 1 mês</span>
+          
+          <br><span class="etq etq-revisar" title="Na estante há mais de 12 meses sem trocar o PDF. Vale conferir se o conteúdo continua atual.">Revisar?</span></td>
+        <td>Tributário</td>
+        <td><span class="etq etq-vis-publicado">Na estante</span>
+              </td>
+        <td class="num" title="Leads que se cadastraram pedindo este ebook">0</td>
+        <td class="num">1</td>
+        <td class="num">0</td>
+        <td><a class="tab-sub" href="/admin/ebooks/40#eventos">+ criar QR</a></td>
+        <td><div class="acoes-linha">
+          <a class="btn btn-linha btn-pq" href="/admin/ebooks/40">Editar</a>
+          <a class="link-btn" href="/admin/ebooks/40/pdf" target="_blank" rel="noopener">Ver PDF</a>
+        </div></td>
+      </tr>
+    
+      <tr>
+        <td><a href="/admin/ebooks/41"><img class="mini-capa" src="capas/reforma-tributaria-o-que-muda-ce946541.jpg" alt=""></a></td>
+        <td><a class="tab-titulo" href="/admin/ebooks/41">Reforma Tributária: o que muda</a>
+          <br><span class="tab-sub">IBS, CBS e o período de transição explicados</span>
+          <br><span class="tab-sub">5 páginas</span></td>
+        <td style="white-space:nowrap"><span title="18/10/2026 18:54">18/10/2026</span>
+          <br><span class="tab-sub">há 5 dias</span>
+          
+          </td>
+        <td>Tributário</td>
+        <td><span class="etq etq-vis-publicado">Na estante</span>
+              <span class="etq etq-ouro" title="Aparece em Em destaque">★ Destaque</span></td>
+        <td class="num" title="Leads que se cadastraram pedindo este ebook">1</td>
+        <td class="num">2</td>
+        <td class="num">0</td>
+        <td><a href="/admin/ebooks/41#eventos">1 evento</a>
+            </td>
+        <td><div class="acoes-linha">
+          <a class="btn btn-linha btn-pq" href="/admin/ebooks/41">Editar</a>
+          <a class="link-btn" href="/admin/ebooks/41/pdf" target="_blank" rel="noopener">Ver PDF</a>
+        </div></td>
+      </tr>
+    
+      <tr>
+        <td><a href="/admin/ebooks/42"><img class="mini-capa" src="capas/lucro-presumido-x-lucro-real-c9e4d389.jpg" alt=""></a></td>
+        <td><a class="tab-titulo" href="/admin/ebooks/42">Lucro Presumido x Lucro Real</a>
+          <br><span class="tab-sub">Qual regime pagar menos imposto</span>
+          <br><span class="tab-sub">5 páginas</span></td>
+        <td style="white-space:nowrap"><span title="25/06/2026 18:54">25/06/2026</span>
+          <br><span class="tab-sub">há 3 meses</span>
+          
+          </td>
+        <td>Tributário</td>
+        <td><span class="etq etq-vis-publicado">Na estante</span>
+              </td>
+        <td class="num" title="Leads que se cadastraram pedindo este ebook">0</td>
+        <td class="num">1</td>
+        <td class="num">0</td>
+        <td><a class="tab-sub" href="/admin/ebooks/42#eventos">+ criar QR</a></td>
+        <td><div class="acoes-linha">
+          <a class="btn btn-linha btn-pq" href="/admin/ebooks/42">Editar</a>
+          <a class="link-btn" href="/admin/ebooks/42/pdf" target="_blank" rel="noopener">Ver PDF</a>
+        </div></td>
+      </tr>
+    
+      <tr>
+        <td><a href="/admin/ebooks/43"><img class="mini-capa" src="capas/folha-de-pagamento-sem-misterio-1eb21327.jpg" alt=""></a></td>
+        <td><a class="tab-titulo" href="/admin/ebooks/43">Folha de Pagamento sem Mistério</a>
+          <br><span class="tab-sub">Encargos, férias e 13º sem sustos</span>
+          <br><span class="tab-sub">5 páginas</span></td>
+        <td style="white-space:nowrap"><span title="24/08/2026 18:54">24/08/2026</span>
+          <br><span class="tab-sub">há 1 mês</span>
+          
+          </td>
+        <td>Departamento Pessoal</td>
+        <td><span class="etq etq-vis-publicado">Na estante</span>
+              <span class="etq etq-ouro" title="Aparece em Em destaque">★ Destaque</span></td>
+        <td class="num" title="Leads que se cadastraram pedindo este ebook">0</td>
+        <td class="num">1</td>
+        <td class="num">0</td>
+        <td><a class="tab-sub" href="/admin/ebooks/43#eventos">+ criar QR</a></td>
+        <td><div class="acoes-linha">
+          <a class="btn btn-linha btn-pq" href="/admin/ebooks/43">Editar</a>
+          <a class="link-btn" href="/admin/ebooks/43/pdf" target="_blank" rel="noopener">Ver PDF</a>
+        </div></td>
+      </tr>
+    
+      <tr>
+        <td><a href="/admin/ebooks/44"><img class="mini-capa" src="capas/contratar-o-1o-funcionario-9f9ae52e.jpg" alt=""></a></td>
+        <td><a class="tab-titulo" href="/admin/ebooks/44">Contratar o 1º funcionário</a>
+          <br><span class="tab-sub">Passo a passo da admissão</span>
+          <br><span class="tab-sub">5 páginas</span></td>
+        <td style="white-space:nowrap"><span title="03/10/2026 18:54">03/10/2026</span>
+          <br><span class="tab-sub">há 20 dias</span>
+          
+          </td>
+        <td>Departamento Pessoal</td>
+        <td><span class="etq etq-vis-evento">Só eventos</span>
+              </td>
+        <td class="num" title="Leads que se cadastraram pedindo este ebook">0</td>
+        <td class="num">4</td>
+        <td class="num">0</td>
+        <td><a href="/admin/ebooks/44#eventos">1 evento</a>
+            </td>
+        <td><div class="acoes-linha">
+          <a class="btn btn-linha btn-pq" href="/admin/ebooks/44">Editar</a>
+          <a class="link-btn" href="/admin/ebooks/44/pdf" target="_blank" rel="noopener">Ver PDF</a>
+        </div></td>
+      </tr>
+    
+      <tr>
+        <td><a href="/admin/ebooks/45"><img class="mini-capa" src="capas/abrindo-sua-empresa-c752dd02.jpg" alt=""></a></td>
+        <td><a class="tab-titulo" href="/admin/ebooks/45">Abrindo sua empresa</a>
+          <br><span class="tab-sub">Do CNPJ ao primeiro faturamento</span>
+          <br><span class="tab-sub">5 páginas</span></td>
+        <td style="white-space:nowrap"><span title="06/04/2026 18:54">06/04/2026</span>
+          <br><span class="tab-sub">há 6 meses</span>
+          
+          </td>
+        <td>Gestão e Abertura</td>
+        <td><span class="etq etq-vis-publicado">Na estante</span>
+              </td>
+        <td class="num" title="Leads que se cadastraram pedindo este ebook">0</td>
+        <td class="num">1</td>
+        <td class="num">0</td>
+        <td><a class="tab-sub" href="/admin/ebooks/45#eventos">+ criar QR</a></td>
+        <td><div class="acoes-linha">
+          <a class="btn btn-linha btn-pq" href="/admin/ebooks/45">Editar</a>
+          <a class="link-btn" href="/admin/ebooks/45/pdf" target="_blank" rel="noopener">Ver PDF</a>
+        </div></td>
+      </tr>
+    
+      <tr>
+        <td><a href="/admin/ebooks/46"><img class="mini-capa" src="capas/fluxo-de-caixa-para-pequenos-negocios-fd0c77ba.jpg" alt=""></a></td>
+        <td><a class="tab-titulo" href="/admin/ebooks/46">Fluxo de caixa para pequenos negócios</a>
+          <br><span class="tab-sub">Planilha e rotina semanal</span>
+          <br><span class="tab-sub">5 páginas</span></td>
+        <td style="white-space:nowrap"><span title="13/10/2026 18:54">13/10/2026</span>
+          <br><span class="tab-sub">há 10 dias</span>
+          
+          </td>
+        <td>Gestão e Abertura</td>
+        <td><span class="etq etq-vis-publicado">Na estante</span>
+              </td>
+        <td class="num" title="Leads que se cadastraram pedindo este ebook">0</td>
+        <td class="num">1</td>
+        <td class="num">0</td>
+        <td><a class="tab-sub" href="/admin/ebooks/46#eventos">+ criar QR</a></td>
+        <td><div class="acoes-linha">
+          <a class="btn btn-linha btn-pq" href="/admin/ebooks/46">Editar</a>
+          <a class="link-btn" href="/admin/ebooks/46/pdf" target="_blank" rel="noopener">Ver PDF</a>
+        </div></td>
+      </tr>
+    
+      <tr>
+        <td><a href="/admin/ebooks/47"><img class="mini-capa" src="capas/pro-labore-e-distribuicao-de-lucros-a15aa740.jpg" alt=""></a></td>
+        <td><a class="tab-titulo" href="/admin/ebooks/47">Pró-labore e distribuição de lucros</a>
+          <br><span class="tab-sub">Quanto retirar sem pagar imposto à toa</span>
+          <br><span class="tab-sub">5 páginas</span></td>
+        <td style="white-space:nowrap"><span title="25/07/2026 18:54">25/07/2026</span>
+          <br><span class="tab-sub">há 2 meses</span>
+          
+          </td>
+        <td>Gestão e Abertura</td>
+        <td><span class="etq etq-vis-publicado">Na estante</span>
+              </td>
+        <td class="num" title="Leads que se cadastraram pedindo este ebook">0</td>
+        <td class="num">1</td>
+        <td class="num">0</td>
+        <td><a class="tab-sub" href="/admin/ebooks/47#eventos">+ criar QR</a></td>
+        <td><div class="acoes-linha">
+          <a class="btn btn-linha btn-pq" href="/admin/ebooks/47">Editar</a>
+          <a class="link-btn" href="/admin/ebooks/47/pdf" target="_blank" rel="noopener">Ver PDF</a>
+        </div></td>
+      </tr>
+    
+    </tbody>
+  </table></div>
+  
+</div>
+
+</main>
+
+<dialog class="qr-grande" id="qr-grande" aria-label="QR code ampliado">
+  <p id="qr-nome" style="margin:0 0 10px;font:600 18px var(--f-titulo);color:var(--vinho)"></p>
+  <img id="qr-img" alt="QR code ampliado">
+  <div style="margin-top:12px"><button class="btn btn-vinho btn-pq" type="button" onclick="this.closest('dialog').close()">Fechar</button></div>
+</dialog>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+  const toast = msg => { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('ver');
+                         clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('ver'), 2200); };
+
+  // Botão de envio mostra que está trabalhando (upload de PDF grande demora).
+  document.querySelectorAll('form[data-enviando]').forEach(f => f.addEventListener('submit', () => {
+    const b = f.querySelector('button[type=submit]');
+    if (b) { b.disabled = true; b.textContent = f.dataset.enviando; }
+  }));
+
+  // Copiar link do QR.
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-copiar]');
+    if (!b) return;
+    navigator.clipboard.writeText(b.dataset.copiar).then(() => toast('Link copiado!'), () => prompt('Copie o link:', b.dataset.copiar));
+  });
+
+  // QR ampliado (para conferir/escanear direto da tela).
+  const dlg = document.getElementById('qr-grande');
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-qr]');
+    if (!b) return;
+    document.getElementById('qr-img').src = b.dataset.qr;
+    document.getElementById('qr-nome').textContent = b.dataset.nome || '';
+    dlg.showModal();
+  });
+  dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+
+  // Botão "Mostrar" nos campos de senha.
+  document.querySelectorAll('.ver-senha').forEach(b => b.addEventListener('click', () => {
+    const c = document.getElementById(b.dataset.alvo), ver = c.type === 'password';
+    c.type = ver ? 'text' : 'password'; b.textContent = ver ? 'Ocultar' : 'Mostrar';
+  }));
+
+  // Usuário sugerido a partir do nome ("Mariana Lima Souza" -> "mariana.souza"), até a pessoa editar.
+  document.querySelectorAll('[data-sugere-de]').forEach(u => {
+    const nome = document.getElementById(u.dataset.sugereDe);
+    let mexeu = !!u.value;
+    u.addEventListener('input', () => { mexeu = true; u.value = u.value.toLowerCase().replace(/\s/g, ''); });
+    if (nome) nome.addEventListener('input', () => {
+      if (mexeu) return;
+      const p = nome.value.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z ]/g, '').trim().split(/\s+/).filter(Boolean);
+      u.value = !p.length ? '' : (p.length === 1 ? p[0] : p[0] + '.' + p[p.length - 1]).slice(0, 30);
+    });
+  });
+
+  // Mensagem de sucesso some sozinha; a de erro fica até a pessoa ler.
+  const ok = document.querySelector('.adm > .alerta-ok');
+  if (ok) setTimeout(() => ok.style.display = 'none', 7000);
+  if (location.search.includes('msg=') || location.search.includes('err='))
+    history.replaceState(null, '', location.pathname + location.hash);
+})();
+</script>
+
+<script>
+  // Título sugerido a partir do nome do arquivo ("guia-simples_2026.pdf" -> "Guia simples 2026").
+  document.getElementById('pdf').addEventListener('change', e => {
+    const t = document.getElementById('titulo'), f = e.target.files[0];
+    if (!f || t.value.trim()) return;
+    const nome = f.name.replace(/\.pdf$/i, '').replace(/[-_]+/g, ' ').trim();
+    t.value = nome.charAt(0).toUpperCase() + nome.slice(1);
+  });
+</script>
+
+<script>window.DEMO = {"presentes": ["contratar-o-1o-funcionario"], "evento_slug": "contratar-o-1o-funcionario", "ebook_admin": 41, "admin": {}};</script><script src="static/demo.js"></script></body></html>

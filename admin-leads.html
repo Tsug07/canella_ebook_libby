@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="pt-br"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Leads · Biblioteca Canella & Santos</title>
+<link rel="icon" href="static/img/favicon.ico" sizes="any">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="static/style.css?v=11">
+</head>
+<body class="admin"><div class="demo-faixa">Versão de <b>demonstração</b> para apresentação interna · dados fictícios · os formulários não enviam nada · <a href="admin-login.html">ver o painel da equipe</a> · <a href="index.html">ver a estante</a></div>
+
+<header class="adm-topo"><div class="in">
+  <a href="/admin"><img src="static/img/logo.png" alt="Canella & Santos" width="130" height="38"></a>
+  <nav>
+    <a href="/admin/ebooks" class="">Ebooks</a>
+    <a href="/admin/eventos" class="">Eventos e QR</a>
+    <a href="/admin/leads" class="ativo">Leads</a>
+    
+    <a href="/admin/usuarios" class="">Usuários</a>
+    <a href="/admin/atividade" class="">Atividade</a>
+    <a href="/admin/backups" class="">Backups</a>
+    
+  </nav>
+  <div class="dir">
+    <a href="/" target="_blank" rel="noopener">Ver estante ↗</a>
+    <a href="/admin/conta" class="eu" title="Minha conta">Equipe <span class="ponto-alerta" title="Verificação em duas etapas desativada"></span></a>
+    <a href="/admin/sair">Sair</a>
+  </div>
+</div></header>
+
+<main class="adm">
+  
+  
+  
+<h1>Leads</h1>
+<p class="lead">Todos que pediram acesso, pelo cadastro ou por evento.</p>
+
+<div class="resumo">
+  <div><b>6</b><span>contatos no total</span></div>
+  <div><b>4</b><span>com biblioteca completa</span></div>
+  <div><b>2</b><span>só ebook de evento</span></div>
+  <div><b>6</b><span>novos nos últimos 7 dias</span></div>
+  <div><a href="?tipo=estudante" class="resumo-link"><b>1</b><span>🎓 estudantes</span></a></div>
+</div>
+
+
+<div class="painel">
+  <div class="cab"><h2>De onde vêm os leads</h2>
+    <span class="dica" style="margin:0">Use os links de campanha (tela do ebook) para medir cada canal.</span></div>
+  <div class="bd canais">
+    
+    
+    <a class="canal" href="?canal=Instagram" title="Filtrar por Instagram">
+      <span class="canal-nome">Instagram</span>
+      <span class="canal-barra"><i style="width:100%"></i></span>
+      <span class="canal-num"><b>2</b> · 2 completos</span>
+    </a>
+    
+    <a class="canal" href="?canal=Evento%20/%20palestra" title="Filtrar por Evento / palestra">
+      <span class="canal-nome">Evento / palestra</span>
+      <span class="canal-barra"><i style="width:100%"></i></span>
+      <span class="canal-num"><b>2</b> · 0 completos</span>
+    </a>
+    
+    <a class="canal" href="?canal=LinkedIn" title="Filtrar por LinkedIn">
+      <span class="canal-nome">LinkedIn</span>
+      <span class="canal-barra"><i style="width:50%"></i></span>
+      <span class="canal-num"><b>1</b> · 1 completo</span>
+    </a>
+    
+    <a class="canal" href="?canal=Google" title="Filtrar por Google">
+      <span class="canal-nome">Google</span>
+      <span class="canal-barra"><i style="width:50%"></i></span>
+      <span class="canal-num"><b>1</b> · 1 completo</span>
+    </a>
+    
+  </div>
+</div>
+
+
+<div class="painel">
+  <div class="cab">
+    <form class="filtros" method="get">
+      
+      <input name="busca" value="" placeholder="Buscar nome, e-mail, empresa ou faculdade" aria-label="Buscar">
+      <select name="tipo" aria-label="Tipo de acesso" onchange="this.form.submit()">
+        <option value="">Todos</option>
+        <option value="completo" >Biblioteca completa</option>
+        <option value="evento" >Só evento</option>
+        <option value="estudante" >🎓 Estudantes</option>
+        <option value="profissional" >💼 Profissionais / empresas</option>
+      </select>
+      <button class="btn btn-linha btn-pq" type="submit">Filtrar</button>
+    </form>
+    <a class="btn btn-ouro btn-pq" href="/admin/leads.csv?busca=&tipo=&canal=">Exportar planilha (CSV)</a>
+  </div>
+  
+  <div class="rolagem"><table class="tab">
+    <thead><tr><th>Contato</th><th>Empresa ou instituição</th><th>Telefone</th><th>Acesso</th><th>Canal / pedido</th>
+      <th class="num">Leituras</th><th class="num">Downloads</th><th>Cadastro</th><th></th></tr></thead>
+    <tbody>
+    
+      <tr>
+        <td><b>Visitante Demo</b><br><a href="mailto:visitante@exemplo.com" style="font-size:13.5px">visitante@exemplo.com</a>
+            </td>
+        <td>Empresa Demo<br><span style="font-size:13px;color:var(--texto-suave)">Sócio</span>
+            </td>
+        <td>
+              <a href="https://wa.me/5524999990000" target="_blank" rel="noopener">(24) 99999-0000</a></td>
+        <td><span class="etq etq-ok">Completo</span>
+            </td>
+        <td style="font-size:13.5px"><b>Google</b>
+            
+            <br><span style="color:var(--texto-suave)">Eventos: Café com Contabilidade — Out/26</span></td>
+        <td class="num">9</td>
+        <td class="num">0</td>
+        <td style="font-size:13.5px;white-space:nowrap">23/10/2026 18:54</td>
+        <td><form method="post" action="/admin/leads/566/excluir"
+                  data-msg="Excluir os dados de Visitante Demo? (pedido LGPD) Esta ação não pode ser desfeita."
+                  onsubmit="return confirm(this.dataset.msg)">
+            <button class="link-btn perigo" type="submit" title="Excluir dados (LGPD)">Excluir</button></form></td>
+      </tr>
+    
+      <tr>
+        <td><b>Participante 2 (exemplo)</b><br><a href="mailto:p1@exemplo.com" style="font-size:13.5px">p1@exemplo.com</a>
+            </td>
+        <td>—
+            </td>
+        <td>—</td>
+        <td><span class="etq etq-ouro">Só evento</span>
+            </td>
+        <td style="font-size:13.5px"><b>Evento / palestra</b>
+            
+            <br><span style="color:var(--texto-suave)">Eventos: Café com Contabilidade — Out/26</span></td>
+        <td class="num">1</td>
+        <td class="num">0</td>
+        <td style="font-size:13.5px;white-space:nowrap">23/10/2026 18:54</td>
+        <td><form method="post" action="/admin/leads/565/excluir"
+                  data-msg="Excluir os dados de Participante 2 (exemplo)? (pedido LGPD) Esta ação não pode ser desfeita."
+                  onsubmit="return confirm(this.dataset.msg)">
+            <button class="link-btn perigo" type="submit" title="Excluir dados (LGPD)">Excluir</button></form></td>
+      </tr>
+    
+      <tr>
+        <td><b>Participante 1 (exemplo)</b><br><a href="mailto:p0@exemplo.com" style="font-size:13.5px">p0@exemplo.com</a>
+            </td>
+        <td>—
+            </td>
+        <td>—</td>
+        <td><span class="etq etq-ouro">Só evento</span>
+            </td>
+        <td style="font-size:13.5px"><b>Evento / palestra</b>
+            
+            <br><span style="color:var(--texto-suave)">Eventos: Café com Contabilidade — Out/26</span></td>
+        <td class="num">1</td>
+        <td class="num">0</td>
+        <td style="font-size:13.5px;white-space:nowrap">23/10/2026 18:54</td>
+        <td><form method="post" action="/admin/leads/564/excluir"
+                  data-msg="Excluir os dados de Participante 1 (exemplo)? (pedido LGPD) Esta ação não pode ser desfeita."
+                  onsubmit="return confirm(this.dataset.msg)">
+            <button class="link-btn perigo" type="submit" title="Excluir dados (LGPD)">Excluir</button></form></td>
+      </tr>
+    
+      <tr>
+        <td><b>Ana Clara (exemplo)</b><br><a href="mailto:ana@exemplo.com" style="font-size:13.5px">ana@exemplo.com</a>
+            </td>
+        <td><span class="etq etq-estudante">🎓 Estudante</span>
+              <br>UniFOA
+              <br><span style="font-size:13px;color:var(--texto-suave)">Ciências Contábeis · 3º ou 4º ano</span>
+            </td>
+        <td>
+              <a href="https://wa.me/5524999990000" target="_blank" rel="noopener">(24) 99999-0000</a></td>
+        <td><span class="etq etq-ok">Completo</span>
+            </td>
+        <td style="font-size:13.5px"><b>Instagram</b>
+            
+            </td>
+        <td class="num">0</td>
+        <td class="num">0</td>
+        <td style="font-size:13.5px;white-space:nowrap">23/10/2026 18:54</td>
+        <td><form method="post" action="/admin/leads/563/excluir"
+                  data-msg="Excluir os dados de Ana Clara (exemplo)? (pedido LGPD) Esta ação não pode ser desfeita."
+                  onsubmit="return confirm(this.dataset.msg)">
+            <button class="link-btn perigo" type="submit" title="Excluir dados (LGPD)">Excluir</button></form></td>
+      </tr>
+    
+      <tr>
+        <td><b>Rui Prado (exemplo)</b><br><a href="mailto:rui@exemplo.com" style="font-size:13.5px">rui@exemplo.com</a>
+            </td>
+        <td>Prado Engenharia<br><span style="font-size:13px;color:var(--texto-suave)">Diretor</span>
+            </td>
+        <td>
+              <a href="https://wa.me/5524999990000" target="_blank" rel="noopener">(24) 99999-0000</a></td>
+        <td><span class="etq etq-ok">Completo</span>
+            </td>
+        <td style="font-size:13.5px"><b>LinkedIn</b>
+            
+            </td>
+        <td class="num">0</td>
+        <td class="num">0</td>
+        <td style="font-size:13.5px;white-space:nowrap">23/10/2026 18:54</td>
+        <td><form method="post" action="/admin/leads/562/excluir"
+                  data-msg="Excluir os dados de Rui Prado (exemplo)? (pedido LGPD) Esta ação não pode ser desfeita."
+                  onsubmit="return confirm(this.dataset.msg)">
+            <button class="link-btn perigo" type="submit" title="Excluir dados (LGPD)">Excluir</button></form></td>
+      </tr>
+    
+      <tr>
+        <td><b>Paula Reis (exemplo)</b><br><a href="mailto:paula@exemplo.com" style="font-size:13.5px">paula@exemplo.com</a>
+            </td>
+        <td>Reis Comércio<br><span style="font-size:13px;color:var(--texto-suave)">Sócia</span>
+            </td>
+        <td>
+              <a href="https://wa.me/5524999990000" target="_blank" rel="noopener">(24) 99999-0000</a></td>
+        <td><span class="etq etq-ok">Completo</span>
+            </td>
+        <td style="font-size:13.5px"><b>Instagram</b>
+            <br><span style="color:var(--texto-suave)">Pediu: Reforma Tributária: o que muda</span>
+            </td>
+        <td class="num">1</td>
+        <td class="num">0</td>
+        <td style="font-size:13.5px;white-space:nowrap">23/10/2026 18:54</td>
+        <td><form method="post" action="/admin/leads/561/excluir"
+                  data-msg="Excluir os dados de Paula Reis (exemplo)? (pedido LGPD) Esta ação não pode ser desfeita."
+                  onsubmit="return confirm(this.dataset.msg)">
+            <button class="link-btn perigo" type="submit" title="Excluir dados (LGPD)">Excluir</button></form></td>
+      </tr>
+    
+    </tbody>
+  </table></div>
+  
+  
+</div>
+
+</main>
+
+<dialog class="qr-grande" id="qr-grande" aria-label="QR code ampliado">
+  <p id="qr-nome" style="margin:0 0 10px;font:600 18px var(--f-titulo);color:var(--vinho)"></p>
+  <img id="qr-img" alt="QR code ampliado">
+  <div style="margin-top:12px"><button class="btn btn-vinho btn-pq" type="button" onclick="this.closest('dialog').close()">Fechar</button></div>
+</dialog>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+  const toast = msg => { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('ver');
+                         clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('ver'), 2200); };
+
+  // Botão de envio mostra que está trabalhando (upload de PDF grande demora).
+  document.querySelectorAll('form[data-enviando]').forEach(f => f.addEventListener('submit', () => {
+    const b = f.querySelector('button[type=submit]');
+    if (b) { b.disabled = true; b.textContent = f.dataset.enviando; }
+  }));
+
+  // Copiar link do QR.
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-copiar]');
+    if (!b) return;
+    navigator.clipboard.writeText(b.dataset.copiar).then(() => toast('Link copiado!'), () => prompt('Copie o link:', b.dataset.copiar));
+  });
+
+  // QR ampliado (para conferir/escanear direto da tela).
+  const dlg = document.getElementById('qr-grande');
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-qr]');
+    if (!b) return;
+    document.getElementById('qr-img').src = b.dataset.qr;
+    document.getElementById('qr-nome').textContent = b.dataset.nome || '';
+    dlg.showModal();
+  });
+  dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+
+  // Botão "Mostrar" nos campos de senha.
+  document.querySelectorAll('.ver-senha').forEach(b => b.addEventListener('click', () => {
+    const c = document.getElementById(b.dataset.alvo), ver = c.type === 'password';
+    c.type = ver ? 'text' : 'password'; b.textContent = ver ? 'Ocultar' : 'Mostrar';
+  }));
+
+  // Usuário sugerido a partir do nome ("Mariana Lima Souza" -> "mariana.souza"), até a pessoa editar.
+  document.querySelectorAll('[data-sugere-de]').forEach(u => {
+    const nome = document.getElementById(u.dataset.sugereDe);
+    let mexeu = !!u.value;
+    u.addEventListener('input', () => { mexeu = true; u.value = u.value.toLowerCase().replace(/\s/g, ''); });
+    if (nome) nome.addEventListener('input', () => {
+      if (mexeu) return;
+      const p = nome.value.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z ]/g, '').trim().split(/\s+/).filter(Boolean);
+      u.value = !p.length ? '' : (p.length === 1 ? p[0] : p[0] + '.' + p[p.length - 1]).slice(0, 30);
+    });
+  });
+
+  // Mensagem de sucesso some sozinha; a de erro fica até a pessoa ler.
+  const ok = document.querySelector('.adm > .alerta-ok');
+  if (ok) setTimeout(() => ok.style.display = 'none', 7000);
+  if (location.search.includes('msg=') || location.search.includes('err='))
+    history.replaceState(null, '', location.pathname + location.hash);
+})();
+</script>
+
+<script>window.DEMO = {"presentes": ["contratar-o-1o-funcionario"], "evento_slug": "contratar-o-1o-funcionario", "ebook_admin": 41, "admin": {}};</script><script src="static/demo.js"></script></body></html>

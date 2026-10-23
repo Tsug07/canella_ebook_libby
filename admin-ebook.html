@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="pt-br"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Reforma Tributária: o que muda · Biblioteca Canella & Santos</title>
+<link rel="icon" href="static/img/favicon.ico" sizes="any">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="static/style.css?v=11">
+</head>
+<body class="admin"><div class="demo-faixa">Versão de <b>demonstração</b> para apresentação interna · dados fictícios · os formulários não enviam nada · <a href="admin-login.html">ver o painel da equipe</a> · <a href="index.html">ver a estante</a></div>
+
+<header class="adm-topo"><div class="in">
+  <a href="/admin"><img src="static/img/logo.png" alt="Canella & Santos" width="130" height="38"></a>
+  <nav>
+    <a href="/admin/ebooks" class="ativo">Ebooks</a>
+    <a href="/admin/eventos" class="">Eventos e QR</a>
+    <a href="/admin/leads" class="">Leads</a>
+    
+    <a href="/admin/usuarios" class="">Usuários</a>
+    <a href="/admin/atividade" class="">Atividade</a>
+    <a href="/admin/backups" class="">Backups</a>
+    
+  </nav>
+  <div class="dir">
+    <a href="/" target="_blank" rel="noopener">Ver estante ↗</a>
+    <a href="/admin/conta" class="eu" title="Minha conta">Equipe <span class="ponto-alerta" title="Verificação em duas etapas desativada"></span></a>
+    <a href="/admin/sair">Sair</a>
+  </div>
+</div></header>
+
+<main class="adm">
+  
+  
+  
+
+<p class="migalha"><a href="/admin/ebooks">← Todos os ebooks</a></p>
+<div class="adm-cab">
+  <div>
+    <h1>Reforma Tributária: o que muda</h1>
+    <p class="lead">
+      <span class="etq etq-vis-publicado">Na estante</span>
+      <span class="etq etq-ouro">★ Destaque</span>
+      5 páginas · 5 KB · adicionado em <b>18/10/2026 18:54</b> (há 5 dias)
+      </p>
+  </div>
+  <div class="acoes-linha">
+    <a class="btn btn-linha btn-pq" href="/admin/ebooks/41/pdf" target="_blank" rel="noopener">Ver PDF</a>
+    <a class="btn btn-linha btn-pq" href="/ebook/reforma-tributaria-o-que-muda" target="_blank" rel="noopener">Ver página pública ↗</a>
+    <a class="btn btn-ouro btn-pq" href="#eventos">Eventos e QR (1)</a>
+  </div>
+</div>
+
+
+
+<div class="painel">
+  <div class="cab"><h2>Dados do ebook</h2></div>
+  <div class="bd">
+  
+  <form method="post" enctype="multipart/form-data" data-enviando="Salvando…">
+    <div class="ed-grade">
+      <div>
+        <img src="capas/reforma-tributaria-o-que-muda-ce946541.jpg" alt="Capa atual" class="ed-capa">
+        <label class="check" style="margin-top:12px"><input type="checkbox" name="regerar_capa" value="1">
+          <span>Refazer a capa a partir da 1ª página do PDF</span></label>
+      </div>
+      <div class="grade-form">
+        <div class="campo"><label for="titulo">Título *</label><input id="titulo" name="titulo" value="Reforma Tributária: o que muda" required maxlength="200"></div>
+        <div class="campo"><label for="subtitulo">Subtítulo</label><input id="subtitulo" name="subtitulo" value="IBS, CBS e o período de transição explicados" maxlength="250"></div>
+        <div class="campo"><label for="categoria">Prateleira</label><input id="categoria" name="categoria" list="cats" value="Tributário" maxlength="80"></div>
+        <div class="campo"><label for="ordem">Posição na prateleira</label><input id="ordem" name="ordem" type="number" value="1">
+          <small>Números menores ficam mais à esquerda.</small></div>
+        <div class="campo larga"><label for="descricao">Descrição</label><textarea id="descricao" name="descricao" maxlength="3000">Um guia direto ao ponto, escrito pela equipe da Canella &amp; Santos, com exemplos reais e checklists para aplicar no seu negócio.</textarea>
+          <small>Também aparece na prévia quando o link é compartilhado no WhatsApp/LinkedIn (se não houver subtítulo).</small></div>
+        <div class="campo"><label for="pdf">Trocar o PDF <span class="opc">(opcional)</span></label><input id="pdf" name="pdf" type="file" accept="application/pdf,.pdf">
+          <small>Para uma <b>edição nova do mesmo assunto</b>: os links e QR codes continuam valendo e abrem a versão nova.</small></div>
+        <div class="campo"><label for="capa">Trocar a capa <span class="opc">(opcional)</span></label><input id="capa" name="capa" type="file" accept="image/png,image/jpeg,image/webp"></div>
+        
+        <div class="larga">
+<fieldset class="vis-opcoes">
+  <legend>Quem pode ver este ebook?</legend>
+  
+  <label class="vis-opcao vis-publicado">
+    <input type="radio" name="visibilidade" value="publicado" checked>
+    <span><b>Na estante</b><small>Aparece na prateleira. Abre para quem fez o cadastro e para quem ganhou no evento.</small></span>
+  </label>
+  
+  <label class="vis-opcao vis-evento">
+    <input type="radio" name="visibilidade" value="evento" >
+    <span><b>Só eventos</b><small>Não aparece na estante. Só quem escaneia o QR de um evento recebe.</small></span>
+  </label>
+  
+  <label class="vis-opcao vis-oculto">
+    <input type="radio" name="visibilidade" value="oculto" >
+    <span><b>Oculto</b><small>Ninguém acessa, nem pelo QR. Use para rascunhos ou para tirar do ar.</small></span>
+  </label>
+  
+</fieldset></div>
+        <label class="check larga"><input type="checkbox" name="destaque" value="1" checked>
+          <span><b>Destacar no topo da estante</b> (até 3 ebooks aparecem em "Em destaque"; vale para os que estão "Na estante").</span></label>
+        
+      </div>
+    </div>
+    <div class="acoes-linha" style="margin-top:6px">
+      <button class="btn btn-vinho" type="submit">Salvar alterações</button>
+      <a class="btn btn-linha" href="/admin/ebooks">Voltar</a>
+    </div>
+  </form>
+  </div>
+</div>
+<datalist id="cats"><option value="Departamento Pessoal"><option value="Gestão e Abertura"><option value="Tributário"></datalist>
+
+
+<div class="painel" id="divulgar">
+  <div class="cab"><h2>Divulgar este ebook</h2></div>
+  <div class="bd">
+    <p class="dica">Use um link por canal. Quem se cadastrar por ele aparece em <b>Leads</b> com o canal certo, e você descobre o que traz mais gente.
+      No WhatsApp e no LinkedIn, a prévia mostra a capa e o título.</p>
+    <div class="campo" style="max-width:420px">
+      <label for="campanha">Nome da campanha <span class="opc">(opcional)</span></label>
+      <input id="campanha" placeholder="Ex.: reforma-out26" maxlength="60">
+      <small>Para diferenciar posts do mesmo canal.</small>
+    </div>
+    <div class="links-canal" data-base="https://tsug07.github.io/canella_ebook_libby/ebook/reforma-tributaria-o-que-muda">
+      
+      <div class="link-canal">
+        <span class="link-canal-nome">Instagram</span>
+        <code data-canal="instagram">https://tsug07.github.io/canella_ebook_libby/ebook/reforma-tributaria-o-que-muda?origem=instagram</code>
+        <button type="button" class="btn btn-linha btn-pq" data-copiar="https://tsug07.github.io/canella_ebook_libby/ebook/reforma-tributaria-o-que-muda?origem=instagram" data-canal="instagram">Copiar</button>
+      </div>
+      
+      <div class="link-canal">
+        <span class="link-canal-nome">LinkedIn</span>
+        <code data-canal="linkedin">https://tsug07.github.io/canella_ebook_libby/ebook/reforma-tributaria-o-que-muda?origem=linkedin</code>
+        <button type="button" class="btn btn-linha btn-pq" data-copiar="https://tsug07.github.io/canella_ebook_libby/ebook/reforma-tributaria-o-que-muda?origem=linkedin" data-canal="linkedin">Copiar</button>
+      </div>
+      
+      <div class="link-canal">
+        <span class="link-canal-nome">WhatsApp</span>
+        <code data-canal="whatsapp">https://tsug07.github.io/canella_ebook_libby/ebook/reforma-tributaria-o-que-muda?origem=whatsapp</code>
+        <button type="button" class="btn btn-linha btn-pq" data-copiar="https://tsug07.github.io/canella_ebook_libby/ebook/reforma-tributaria-o-que-muda?origem=whatsapp" data-canal="whatsapp">Copiar</button>
+      </div>
+      
+      <div class="link-canal">
+        <span class="link-canal-nome">E-mail</span>
+        <code data-canal="email">https://tsug07.github.io/canella_ebook_libby/ebook/reforma-tributaria-o-que-muda?origem=email</code>
+        <button type="button" class="btn btn-linha btn-pq" data-copiar="https://tsug07.github.io/canella_ebook_libby/ebook/reforma-tributaria-o-que-muda?origem=email" data-canal="email">Copiar</button>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+
+
+<div class="painel" id="eventos">
+  <div class="cab"><h2>Eventos e QR code deste ebook</h2>
+    </div>
+  <div class="bd">
+    <p class="dica">Quem escaneia o QR informa nome e e-mail e recebe este ebook na hora.
+       Para ter a biblioteca completa, a pessoa ainda precisa fazer o cadastro.</p>
+    
+      
+<div class="eventos-lista">
+
+  
+  
+  <article class="ev-cartao" id="ev26">
+    <button type="button" class="ev-qr" data-qr="qr-26.png" data-nome="Semana Acadêmica — Contábeis" title="Ampliar QR code">
+      <img src="qr-26.png" alt="QR code de Semana Acadêmica — Contábeis" loading="lazy" width="96" height="96">
+    </button>
+    <div class="ev-info">
+      <div class="ev-topo">
+        <h3>Semana Acadêmica — Contábeis</h3>
+        <span class="etq etq-estudante">🎓 Estudantes</span>
+        <span class="etq etq-ok">Funcionando</span>
+      </div>
+      <p class="ev-meta">
+        
+        Evento em 05/11/2026
+      </p>
+      
+      <div class="funil" aria-label="Funil do evento">
+        <div><b>0</b><span>abriram o QR</span></div>
+        <i>→</i>
+        <div><b>0</b><span>pegaram o ebook</span></div>
+        <i>→</i>
+        <div class="funil-fim"><b>0</b><span>viraram lead completo</span></div>
+      </div>
+      <div class="ev-link">
+        <code>https://tsug07.github.io/canella_ebook_libby/e/w1_JOomCmag</code>
+        <button type="button" class="link-btn" data-copiar="https://tsug07.github.io/canella_ebook_libby/e/w1_JOomCmag">Copiar link</button>
+      </div>
+      <div class="ev-acoes">
+        <a class="btn btn-ouro btn-pq" href="/admin/eventos/26/imprimir" target="_blank" rel="noopener">Imprimir cartaz</a>
+        <a class="btn btn-linha btn-pq" href="qr-26.png">Baixar QR (PNG)</a>
+        <form method="post" action="/admin/eventos/26/validade" class="ev-validade">
+          <input type="hidden" name="voltar" value="/admin/ebooks/41#ev26">
+          <label>Vale até <input type="date" name="valido_ate" value="2026-12-05"></label>
+          <button class="link-btn" type="submit">Salvar data</button>
+        </form>
+        <span class="ev-sep"></span>
+        <form method="post" action="/admin/eventos/26/alternar">
+          <input type="hidden" name="voltar" value="/admin/ebooks/41#ev26">
+          <button class="link-btn" type="submit">Desativar QR</button></form>
+        <form method="post" action="/admin/eventos/26/excluir"
+              data-msg="Excluir o evento “Semana Acadêmica — Contábeis”? O QR para de funcionar. Quem já entrou continua com o ebook."
+              onsubmit="return confirm(this.dataset.msg)">
+          <input type="hidden" name="voltar" value="/admin/ebooks/41">
+          <button class="link-btn perigo" type="submit">Excluir</button></form>
+      </div>
+    </div>
+  </article>
+
+</div>
+      <details class="novo-ev"><summary class="btn btn-linha btn-pq">+ Novo evento com este ebook</summary>
+        <div style="margin-top:16px">
+<form method="post" action="/admin/eventos" data-enviando="Criando…">
+  <input type="hidden" name="voltar" value="/admin/ebooks/41">
+  <div class="grade-form">
+    <div class="campo"><label for="ev-nome">Nome do evento *</label>
+      <input id="ev-nome" name="nome" required maxlength="160" placeholder="Ex.: Café com Contabilidade — Out/26">
+      <small>Aparece para o participante quando ele escaneia o QR.</small></div>
+    
+      <input type="hidden" name="ebook_id" value="41">
+    
+    <div class="campo"><label for="ev-data">Data do evento</label><input id="ev-data" name="data_evento" type="date"></div>
+    <div class="campo"><label for="ev-val">QR vale até</label><input id="ev-val" name="valido_ate" type="date" min="2026-10-23">
+      <small>Em branco: 30 dias depois do evento.</small></div>
+  </div>
+  <label class="check"><input type="checkbox" name="para_estudantes" value="1">
+    <span><b>Evento para estudantes</b> (palestra em faculdade, semana acadêmica…): os participantes já ficam marcados como estudantes
+      e, se quiserem a biblioteca completa, o cadastro abre no formulário de estudante.</span></label>
+  <button class="btn btn-vinho" type="submit">Criar evento e gerar QR code</button>
+</form></div>
+      </details>
+    
+  </div>
+</div>
+
+<div class="painel" id="arquivar">
+  <div class="cab"><div><h2>Arquivar (material desatualizado)</h2>
+    <p class="dica" style="margin:4px 0 0">Tira da estante e dos QR codes <b>sem apagar nada</b>: leads, leituras e eventos continuam no painel. Dá para restaurar depois.</p></div></div>
+  <div class="bd">
+    <form method="post" action="/admin/ebooks/41/arquivar"
+          data-msg="Arquivar “Reforma Tributária: o que muda”? Ele sai da estante e os QR codes dele param de liberar o material."
+          onsubmit="return confirm(this.dataset.msg)">
+      <div class="grade-form">
+        <div class="campo"><label for="motivo">Motivo <span class="opc">(só a equipe vê)</span></label>
+          <input id="motivo" name="motivo" maxlength="300" placeholder="Ex.: regras mudaram com a Reforma Tributária"></div>
+        <div class="campo"><label for="substituto">Foi substituído por <span class="opc">(opcional)</span></label>
+          <select id="substituto" name="substituto_id">
+            <option value="0">Nenhum: só tirar de circulação</option>
+            <option value="46">Fluxo de caixa para pequenos negócios</option><option value="43">Folha de Pagamento sem Mistério</option><option value="47">Pró-labore e distribuição de lucros</option><option value="42">Lucro Presumido x Lucro Real</option><option value="45">Abrindo sua empresa</option><option value="40">Simples Nacional na Prática</option>
+          </select>
+          <small>Quem abrir o link ou o QR antigo é levado para esta edição.</small></div>
+      </div>
+      <button class="btn btn-linha btn-pq" type="submit">Arquivar ebook</button>
+    </form>
+  </div>
+</div>
+
+
+<div class="painel zona-perigo"><div class="cab"><div><h2>Excluir ebook</h2>
+  <p class="dica" style="margin:4px 0 0">Apaga o PDF, a capa, os eventos e o histórico de leituras. Para material desatualizado, prefira <b>Arquivar</b>.</p></div>
+  <form method="post" action="/admin/ebooks/41/excluir"
+        data-msg="Excluir “Reforma Tributária: o que muda” definitivamente? O PDF, a capa, 1 evento(s) e o histórico de leituras serão apagados."
+        onsubmit="return confirm(this.dataset.msg)">
+    <button class="btn btn-linha btn-pq btn-perigo" type="submit">Excluir definitivamente</button>
+  </form></div>
+</div>
+
+</main>
+
+<dialog class="qr-grande" id="qr-grande" aria-label="QR code ampliado">
+  <p id="qr-nome" style="margin:0 0 10px;font:600 18px var(--f-titulo);color:var(--vinho)"></p>
+  <img id="qr-img" alt="QR code ampliado">
+  <div style="margin-top:12px"><button class="btn btn-vinho btn-pq" type="button" onclick="this.closest('dialog').close()">Fechar</button></div>
+</dialog>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+  const toast = msg => { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('ver');
+                         clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('ver'), 2200); };
+
+  // Botão de envio mostra que está trabalhando (upload de PDF grande demora).
+  document.querySelectorAll('form[data-enviando]').forEach(f => f.addEventListener('submit', () => {
+    const b = f.querySelector('button[type=submit]');
+    if (b) { b.disabled = true; b.textContent = f.dataset.enviando; }
+  }));
+
+  // Copiar link do QR.
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-copiar]');
+    if (!b) return;
+    navigator.clipboard.writeText(b.dataset.copiar).then(() => toast('Link copiado!'), () => prompt('Copie o link:', b.dataset.copiar));
+  });
+
+  // QR ampliado (para conferir/escanear direto da tela).
+  const dlg = document.getElementById('qr-grande');
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-qr]');
+    if (!b) return;
+    document.getElementById('qr-img').src = b.dataset.qr;
+    document.getElementById('qr-nome').textContent = b.dataset.nome || '';
+    dlg.showModal();
+  });
+  dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+
+  // Botão "Mostrar" nos campos de senha.
+  document.querySelectorAll('.ver-senha').forEach(b => b.addEventListener('click', () => {
+    const c = document.getElementById(b.dataset.alvo), ver = c.type === 'password';
+    c.type = ver ? 'text' : 'password'; b.textContent = ver ? 'Ocultar' : 'Mostrar';
+  }));
+
+  // Usuário sugerido a partir do nome ("Mariana Lima Souza" -> "mariana.souza"), até a pessoa editar.
+  document.querySelectorAll('[data-sugere-de]').forEach(u => {
+    const nome = document.getElementById(u.dataset.sugereDe);
+    let mexeu = !!u.value;
+    u.addEventListener('input', () => { mexeu = true; u.value = u.value.toLowerCase().replace(/\s/g, ''); });
+    if (nome) nome.addEventListener('input', () => {
+      if (mexeu) return;
+      const p = nome.value.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z ]/g, '').trim().split(/\s+/).filter(Boolean);
+      u.value = !p.length ? '' : (p.length === 1 ? p[0] : p[0] + '.' + p[p.length - 1]).slice(0, 30);
+    });
+  });
+
+  // Mensagem de sucesso some sozinha; a de erro fica até a pessoa ler.
+  const ok = document.querySelector('.adm > .alerta-ok');
+  if (ok) setTimeout(() => ok.style.display = 'none', 7000);
+  if (location.search.includes('msg=') || location.search.includes('err='))
+    history.replaceState(null, '', location.pathname + location.hash);
+})();
+</script>
+
+<script>
+  // Nome da campanha entra em todos os links de canal.
+  const camp = document.getElementById('campanha');
+  if (camp) camp.addEventListener('input', () => {
+    const base = document.querySelector('.links-canal').dataset.base;
+    const c = camp.value.trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    document.querySelectorAll('.links-canal [data-canal]').forEach(el => {
+      const url = base + '?origem=' + el.dataset.canal + (c ? '&campanha=' + c : '');
+      if (el.tagName === 'CODE') el.textContent = url; else el.dataset.copiar = url;
+    });
+  });
+</script>
+
+<script>window.DEMO = {"presentes": ["contratar-o-1o-funcionario"], "evento_slug": "contratar-o-1o-funcionario", "ebook_admin": 41, "admin": {}};</script><script src="static/demo.js"></script></body></html>
