@@ -561,6 +561,8 @@ details.painel:not([open]) > summary{border-bottom:0}
 .ficha-rodape .link-btn{padding:0;display:inline-flex;align-items:center;font:600 14px/1.2 var(--f-texto)}
 .ficha-rodape .compartilhar{margin-top:0}
 
+.aviso-equipe{border-left-color:var(--vinho);background:#fbf4f5}
+
 /* --- só na demonstração --- */
 .demo-faixa{background:#111;color:#e9d7c7;font-size:13px;text-align:center;padding:7px 12px;line-height:1.4}
 .demo-faixa b{color:#C8A369}

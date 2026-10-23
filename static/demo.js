@@ -4,14 +4,18 @@
   const DEMO = window.DEMO || {};
   const liberado = () => { try { return sessionStorage.getItem('demo_liberado') === '1'; } catch (_) { return false; } };
   const liberar = () => { try { sessionStorage.setItem('demo_liberado', '1'); } catch (_) {} };
+  // Logado no painel (equipe): a estante fica toda liberada, inclusive os exclusivos.
+  const equipe = () => { try { return sessionStorage.getItem('demo_equipe') === '1'; } catch (_) { return false; } };
+  const ser_equipe = (sim) => { try { sim ? sessionStorage.setItem('demo_equipe', '1') : sessionStorage.removeItem('demo_equipe'); } catch (_) {} };
 
   function mapear(href) {
     if (!href || !href.startsWith('/')) return null;
     const u = new URL(href, 'https://demo.local');
     const p = u.pathname, perfil = u.searchParams.get('perfil');
     let m;
-    if (p === '/') return liberado() ? 'estante-liberada.html' : 'index.html';
+    if (p === '/') return equipe() ? 'estante-equipe.html' : (liberado() ? 'estante-liberada.html' : 'index.html');
     if (p.startsWith('/acesso')) {
+      if (equipe()) return 'estante-equipe.html';
       if (liberado()) return 'estante-liberada.html';
       // Guarda o livro que a pessoa clicou (?next=) e a aba, como no sistema real.
       const qs = new URLSearchParams();
@@ -20,16 +24,17 @@
       return (perfil === 'estudante' ? 'acesso-estudante.html' : 'acesso.html') + (qs.toString() ? '?' + qs : '');
     }
     if ((m = p.match(/^\/ler\/([a-z0-9-]+)\/download$/))) return 'pdfs/' + m[1] + '.pdf';
-    if ((m = p.match(/^\/ler\/([a-z0-9-]+)$/))) return (liberado() || (DEMO.presentes || []).includes(m[1])) ? 'ler-' + m[1] + '.html' : 'acesso.html?next=' + encodeURIComponent(p);
+    if ((m = p.match(/^\/ler\/([a-z0-9-]+)$/))) return (equipe() || liberado() || (DEMO.presentes || []).includes(m[1])) ? 'ler-' + m[1] + '.html' : 'acesso.html?next=' + encodeURIComponent(p);
     if ((m = p.match(/^\/ebook\/([a-z0-9-]+)$/))) return 'ebook-' + m[1] + '.html';
     if (p.startsWith('/e/')) return 'evento.html';
     if (p === '/sair') { try { sessionStorage.removeItem('demo_liberado'); } catch (_) {} return 'index.html'; }
     if (p.startsWith('/admin')) {
+      if (p === '/admin/sair') { ser_equipe(false); return 'admin-login.html'; }
       if (/^\/admin\/eventos\/\d+\/imprimir/.test(p)) return 'admin-cartaz.html';
       if (/^\/admin\/ebooks\/\d+/.test(p)) return 'admin-ebook.html';
       const telas = {'/admin': 'admin-ebooks.html', '/admin/ebooks': 'admin-ebooks.html', '/admin/eventos': 'admin-eventos.html',
         '/admin/leads': 'admin-leads.html', '/admin/usuarios': 'admin-usuarios.html', '/admin/atividade': 'admin-atividade.html',
-        '/admin/backups': 'admin-backups.html', '/admin/conta': 'admin-conta.html', '/admin/sair': 'admin-login.html',
+        '/admin/backups': 'admin-backups.html', '/admin/conta': 'admin-conta.html',
         '/admin/login': 'admin-login.html'};
       return telas[p] || 'admin-ebooks.html';
     }
@@ -67,6 +72,7 @@
     } else if (location.pathname.endsWith('evento.html')) {
       location.href = 'ler-' + DEMO.evento_slug + '.html?presente=1';
     } else if (acao.startsWith('/admin/login') || acao === '/admin/primeiro-acesso') {
+      ser_equipe(true);
       location.href = 'admin-ebooks.html';
     } else {
       avisar('Demonstração: no sistema real esta ação é salva.');
